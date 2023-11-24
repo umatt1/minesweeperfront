@@ -72,3 +72,6 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 
 ### [RESOURCES]
 https://www.npmjs.com/package/axios
+https://www.cloudsigma.com/using-http-client-axios-in-a-react-application-a-tutorial/
+
+
