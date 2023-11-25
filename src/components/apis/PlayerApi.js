@@ -9,7 +9,7 @@ class PlayerApi {
       baseURL: apiUrl,
       //timeout: 10000,
       headers: {
-        //'Content-Type': 'application/json',
+        'Content-Type': 'application/json',
         'Access-Control-Allow-Headers': '*',
         'Access-Control-Allow-Origin': '*'
       }
