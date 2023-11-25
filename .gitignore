@@ -25,5 +25,5 @@ yarn-error.log*
 # intellij idea
 .idea
 
-# securituy
+# security
 .env
