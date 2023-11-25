@@ -78,4 +78,6 @@ https://www.cloudsigma.com/using-http-client-axios-in-a-react-application-a-tuto
 
 https://stackoverflow.com/questions/49343024/getting-typeerror-failed-to-fetch-when-the-request-hasnt-actually-failed
 
+https://medium.com/@baphemot/understanding-cors-18ad6b478e2b
+
 
