@@ -17,7 +17,6 @@ class PlayerApi {
 
   async get(endpoint) {
     try {
-        console.log(endpoint);
       //const response = await this.instance.get(endpoint);
       const response = await axios.get(process.env.REACT_APP_BACKEND_URL+endpoint);
       return response.data;
