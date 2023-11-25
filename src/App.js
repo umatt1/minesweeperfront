@@ -1,7 +1,13 @@
 import logo from './logo.svg';
 import './App.css';
+import PlayerApi from './components/apis/PlayerApi';
 
-function App() {
+const api = new PlayerApi();
+
+await api.get("players").then((e)=>console.log(e.json()));
+
+async function App() {
+
   return (
     <div className="App">
       <header className="App-header">

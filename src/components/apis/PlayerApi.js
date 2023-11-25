@@ -8,17 +8,17 @@ class PlayerApi {
     this.instance = axios.create({
       baseURL: apiUrl,
       //timeout: 10000,
-      //headers: {
+      headers: {
         //'Content-Type': 'application/json',
-        // You can add other headers here
-      //},
+        'Access-Control-Allow-Headers': '*',
+        'Access-Control-Allow-Origin': '*'
+      }
     });
   }
 
   async get(endpoint) {
     try {
-      //const response = await this.instance.get(endpoint);
-      const response = await axios.get(process.env.REACT_APP_BACKEND_URL+endpoint);
+      const response = await this.instance.get(endpoint);
       return response.data;
     } catch (error) {
       throw error;
