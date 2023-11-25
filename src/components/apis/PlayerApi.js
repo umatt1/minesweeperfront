@@ -1,12 +1,14 @@
-import axios from "axios";
-
 // Api.js
 import axios from 'axios';
 
+require('dotenv').config();
+
+const apiUrl = process.env.REACT_APP_BACKEND_URL;
+
 class PlayerApi {
-  constructor(baseURL) {
+  constructor() {
     this.instance = axios.create({
-      baseURL,
+      apiUrl,
       headers: {
         'Content-Type': 'application/json',
         // You can add other headers here
