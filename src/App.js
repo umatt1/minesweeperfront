@@ -4,7 +4,7 @@ import PlayerApi from './components/apis/PlayerApi';
 
 const api = new PlayerApi();
 
-await api.get("players").then((e)=>console.log(e.json()));
+await api.get("players").then((e)=>console.log(e));
 
 async function App() {
 
