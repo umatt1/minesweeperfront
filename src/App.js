@@ -1,28 +1,31 @@
 import logo from './logo.svg';
 import './App.css';
 import PlayerApi from './components/apis/PlayerApi';
+import react, { useState, useEffect } from 'react';
 
 const api = new PlayerApi();
 
-await api.get("players").then((e)=>console.log(e));
-
 function App() {
+
+  const [players, setPlayers] = useState([])
+
+  useEffect(() => {
+    getPlayers()
+  }, []);
+
+  const getPlayers = async () => {
+    const response = await api.get("players")
+    console.log(response)
+    setPlayers(response)
+  }
 
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <p>Current players:</p>
+        <ul>
+          {players && players.map((p)=> {<li>{p.username}</li>})}
+        </ul>
       </header>
     </div>
   );
