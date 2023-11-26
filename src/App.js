@@ -24,7 +24,10 @@ function App() {
       <header className="App-header">
         <p>Current players:</p>
         <ul>
-          {players && players.map((p)=> {<li>{p.username}</li>})}
+        {players &&
+          players.map((p) => <li key={p.id}>{p.username}</li>)
+        }
+
         </ul>
       </header>
     </div>
