@@ -6,7 +6,7 @@ const api = new PlayerApi();
 
 await api.get("players").then((e)=>console.log(e));
 
-async function App() {
+function App() {
 
   return (
     <div className="App">
