@@ -15,7 +15,7 @@ const Board = ({ board }) => {
     let count = 0;
     for (let i = row-1; i < row+2; i += 1) {
         for (let j = col-1; j < col+2; j += 1) {
-            if (i < 0 || j < 0 || i >= layout.length || j >= layout.at(0).lenght) {
+            if (i < 0 || j < 0 || i >= layout.length || j >= layout.at(0).length) {
                 continue
             }
             else if (layout.at(i).at(j) === 1) {
