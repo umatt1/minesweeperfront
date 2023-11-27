@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Cell from './Cell';
+import './Board.css'
 
 const Board = ({ board }) => {
   const [revealedCells, setRevealedCells] = useState([]);
