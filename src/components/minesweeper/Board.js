@@ -6,10 +6,14 @@ const Board = ({ board }) => {
   const [revealedCells, setRevealedCells] = useState([]);
 
   const revealCell = (row, col) => {
-    if (!revealedCells.includes(`${row}-${col}`)) {
+    if (!beenFound(row, col)) {
       setRevealedCells([...revealedCells, `${row}-${col}`]);
     }
   };
+
+  const beenFound = (row, col) => {
+    return revealedCells.includes(`${row}-${col}`);
+  }
 
   const surroundingMines = (row, col, layout) => {
     let count = 0;
@@ -36,21 +40,25 @@ const Board = ({ board }) => {
       }
       const stack = [];
       for (let r = row-1; r<=row+1; r++) {
-        for (let c = col-1; c<=col+2; c++) {
-          if (r < 0 || c < 0 || r >= layout.at(0).length || c >= layout.at(0).at(0).length) {
+        for (let c = col-1; c<=col+1; c++) {
+          if (r < 0 || c < 0 || r >= layout.length || c >= layout[0].length) {
             continue;
           }
-          // skip the one we already got
-          if (r === row && c === col) {
+          // skip all the ones we already got
+          if (beenFound(r, c)) {
             continue;
           }
-          if (surroundingMines(r,c,layout) === 0) {
-            stack.push([r,c]);
+          // skip non zeros
+          if (surroundingMines(r,c,layout) !== 0) {
+            continue
           }
+          // non zeros havent found yet get marked as found and added to look at
+          stack.push([r,c]);
+          revealCell(r,c);
         }
       }
 
-      while (stack) {
+      while (stack.length > 0) {
         let item = stack.pop();
         console.log(stack);
         console.log(item);
@@ -64,13 +72,17 @@ const Board = ({ board }) => {
               if (r < 0 || c < 0 || r >= layout.at(0).length || c >= layout.at(0).at(0).length) {
                 continue;
               }
-              // skip the one we already got
-              if (r === itemRow && c === itemCol) {
+              // skip the ones we already got
+              if (beenFound(r,c)) {
                 continue;
               }
-              if (surroundingMines(r,c,layout) === 0) {
-                stack.push([r,c]);
+              // skip the non zeros
+              if (surroundingMines(r,c,layout) !== 0) {
+                continue
               }
+              // non zeros havent found yet get marked as found and added to look at
+                stack.push([r,c]);
+                revealCell(r,c);
             }
           }
         }
