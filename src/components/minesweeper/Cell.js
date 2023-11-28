@@ -1,9 +1,7 @@
 import React from 'react';
 import './Cell.css'
 
-const Cell = ({ value, isRevealed, onClick, surrounding, board, row, col }) => {
-
-
+const Cell = ({ value, isRevealed, onClick, surrounding }) => {
   return (
     <div
       className={`cell ${isRevealed ? 'revealed' : 'clickable'}`}
