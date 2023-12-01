@@ -21,7 +21,8 @@ const Board = ({ board }) => {
     }
     const touched = revealedCells.slice(0, revealedCells.length);
     touched.push(`${row}-${col}`)
-    const stack = [{row: row, col: col}];
+    const stack = [];
+    if (board[row][col] === 0 && surroundingMines(row, col, board) === 0) {stack.push({row: row, col: col});}
     while (stack.length > 0) {
       console.log(touched);
       const center = stack.pop();
@@ -29,6 +30,9 @@ const Board = ({ board }) => {
         for (let c = center.col-1; c < center.col+2; c++) {
           // reveal unrevealed surroundings
           if (touched.includes(`${r}-${c}`) || r < 0 || c < 0 || r >= board.length || c >= board.at(0).length) {
+            continue;
+          }
+          if (board[r][c] === 1) {
             continue;
           }
           touched.push(`${r}-${c}`)
