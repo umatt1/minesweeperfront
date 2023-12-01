@@ -19,18 +19,19 @@ const Board = ({ board }) => {
     if (revealedCells.includes(`${row}-${col}`) || row < 0 || col < 0 || row >= board.length || col >= board.at(0).length) {
       return;
     }
-
-    setRevealedCells([...revealedCells, `${row}-${col}`]);
+    const touched = revealedCells.slice(0, revealedCells.length);
+    touched.push(`${row}-${col}`)
     const stack = [{row: row, col: col}];
     while (stack.length > 0) {
+      console.log(touched);
       const center = stack.pop();
       for (let r = center.row-1; r < center.row+2; r++) {
         for (let c = center.col-1; c < center.col+2; c++) {
           // reveal unrevealed surroundings
-          if (revealedCells.includes(`${r}-${c}`) || r < 0 || c < 0 || r >= board.length || c >= board.at(0).length) {
+          if (touched.includes(`${r}-${c}`) || r < 0 || c < 0 || r >= board.length || c >= board.at(0).length) {
             continue;
           }
-          setRevealedCells([...revealedCells, `${r}-${c}`]);
+          touched.push(`${r}-${c}`)
           // add 0's to the stack
           if (surroundingMines(r,c,board) === 0) {
             stack.push({row: r, col: c});
@@ -38,6 +39,8 @@ const Board = ({ board }) => {
         }
       }
     }
+    setRevealedCells(touched);
+
 
   }
 
