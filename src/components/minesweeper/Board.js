@@ -8,14 +8,37 @@ const Board = ({ board }) => {
   function revealCellFactory(row, col) {
     // return a function that will update this component's state
     return () => {
-      if (!revealedCells.includes(`${row}-${col}`)) {
-        setRevealedCells([...revealedCells, `${row}-${col}`]);
-      }
+      console.log(`row and col ${row} and ${col}`)
+      revealChunk(row,col);
     };
   }
 
   function revealChunk(row, col) {
-    // 
+    // perform the searching part of revealing a large chunk of cells
+    // checks
+    if (revealedCells.includes(`${row}-${col}`) || row < 0 || col < 0 || row >= board.length || col >= board.at(0).length) {
+      return;
+    }
+
+    setRevealedCells([...revealedCells, `${row}-${col}`]);
+    const stack = [{row: row, col: col}];
+    while (stack.length > 0) {
+      const center = stack.pop();
+      for (let r = center.row-1; r < center.row+2; r++) {
+        for (let c = center.col-1; c < center.col+2; c++) {
+          // reveal unrevealed surroundings
+          if (revealedCells.includes(`${r}-${c}`) || r < 0 || c < 0 || r >= board.length || c >= board.at(0).length) {
+            continue;
+          }
+          setRevealedCells([...revealedCells, `${r}-${c}`]);
+          // add 0's to the stack
+          if (surroundingMines(r,c,board) === 0) {
+            stack.push({row: r, col: c});
+          }
+        }
+      }
+    }
+
   }
 
   const surroundingMines = (row, col, layout) => {
