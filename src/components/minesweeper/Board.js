@@ -8,13 +8,14 @@ const Board = ({ board }) => {
   function revealCellFactory(row, col) {
     // return a function that will update this component's state
     return () => {
-      console.log(`attempting reveal ${row}-${col}`)
       if (!revealedCells.includes(`${row}-${col}`)) {
         setRevealedCells([...revealedCells, `${row}-${col}`]);
-        console.log(`revealed ${row}-${col}`)
       }
-      console.log(`have revealed: ${revealedCells}`)
     };
+  }
+
+  function revealChunk(row, col) {
+    // 
   }
 
   const surroundingMines = (row, col, layout) => {
