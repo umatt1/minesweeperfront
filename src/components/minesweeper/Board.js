@@ -5,11 +5,17 @@ import './Board.css'
 const Board = ({ board }) => {
   const [revealedCells, setRevealedCells] = useState([]);
 
-  const revealCell = (row, col) => {
-    if (!revealedCells.includes(`${row}-${col}`)) {
-      setRevealedCells([...revealedCells, `${row}-${col}`]);
-    }
-  };
+  function revealCellFactory(row, col) {
+    return () => {
+      console.log(`attempting reveal ${row}-${col}`)
+      if (!revealedCells.includes(`${row}-${col}`)) {
+        setRevealedCells([...revealedCells, `${row}-${col}`]);
+        console.log(`revealed ${row}-${col}`)
+      }
+      console.log(`have revealed: ${revealedCells}`)
+    };
+  }
+
 
   const surroundingMines = (row, col, layout) => {
     let count = 0;
@@ -28,12 +34,13 @@ const Board = ({ board }) => {
 
   const renderCell = (value, row, col, layout) => {
     const isRevealed = revealedCells.includes(`${row}-${col}`);
+    const revealer = revealCellFactory(row, col);
     return (
       <Cell
         key={`${row}-${col}`}
         value={value}
         isRevealed={isRevealed}
-        onClick={() => revealCell(row, col)}
+        onClick={revealer}
         surrounding={surroundingMines(row, col, layout)}
       />
     );
