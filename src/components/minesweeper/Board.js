@@ -6,6 +6,7 @@ const Board = ({ board }) => {
   const [revealedCells, setRevealedCells] = useState([]);
 
   function revealCellFactory(row, col) {
+    // return a function that will update this component's state
     return () => {
       console.log(`attempting reveal ${row}-${col}`)
       if (!revealedCells.includes(`${row}-${col}`)) {
@@ -16,8 +17,8 @@ const Board = ({ board }) => {
     };
   }
 
-
   const surroundingMines = (row, col, layout) => {
+    // return number of surrounding mines
     let count = 0;
     for (let i = row-1; i < row+2; i += 1) {
         for (let j = col-1; j < col+2; j += 1) {
@@ -33,6 +34,7 @@ const Board = ({ board }) => {
   }
 
   const renderCell = (value, row, col, layout) => {
+    // create a cell
     const isRevealed = revealedCells.includes(`${row}-${col}`);
     const revealer = revealCellFactory(row, col);
     return (
