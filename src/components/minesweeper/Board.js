@@ -5,18 +5,13 @@ import './Board.css'
 const Board = ({ board }) => {
   const [revealedCells, setRevealedCells] = useState([]);
   const [flaggedCells, setFlaggedCells] = useState([]);
-  // game states:
-  // not started -> default state. transitions into in progress and stores a time on the reveal of the first square
-  //                it can transition into a loss of the first tile revealed is a mine
-  // in progress -> game state after the first tile click. transitions into a win if revealedCells.length = board - num mines
-  // win -> displays a congrats
-  // lose -> displays a loss
   const [gameState, setGameState] = useState('not started');
   const [startTime, setStartTime] = useState(null);
+  const [endTime, setEndTime] = useState(null);
 
   function manageGameState() {
     if (gameState === 'not started') {
-      setStartTime(new Date().toLocaleDateString())
+      setStartTime(new Date())
       setGameState('in progress')
     }
 
@@ -42,6 +37,7 @@ const Board = ({ board }) => {
     }
     if (revealedCells.length === squareCount - mineCount) {
       setGameState('win');
+      setEndTime(new Date());
     }
   }
 
@@ -144,7 +140,10 @@ const Board = ({ board }) => {
         </div>
       ))}
       {(gameState === 'win') &&
-        <h1>win!</h1>
+        <div>
+          <h1>win!</h1>
+          <p>Time taken: {((endTime - startTime) / 1000).toFixed(2)} seconds</p>
+        </div>
       }
       {(gameState === 'lose') &&
         <h1>lose!</h1>
