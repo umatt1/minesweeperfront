@@ -70,6 +70,18 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
 
 
+### [TODO]
+FOR NOW:
+Track board state (not started, in progress, win, lost)
+Track time to solve on board state
+Customize emojis for flagging, bombs on the tiles
+
+LATER:
+Create users
+Generate new puzzles assigned to the day
+Grab puzzle assigned to current day
+
+
 ### [RESOURCES]
 
 https://www.npmjs.com/package/axios
