@@ -1,10 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Cell from './Cell';
 import './Board.css'
 
 const Board = ({ board }) => {
   const [revealedCells, setRevealedCells] = useState([]);
   const [flaggedCells, setFlaggedCells] = useState([]);
+  // game states:
+  // not started -> default state. transitions into in progress and stores a time on the reveal of the first square
+  //                it can transition into a loss of the first tile revealed is a mine
+  // in progress -> game state after the first tile click. transitions into a win if revealedCells.length = board - num mines
+  // win -> displays a congrats
+  // lose -> displays a loss
+  const [gameState, setGameState] = useState('not started');
+  const [startTime, setStartTime] = useState(null);
+
+  function manageGameState() {
+    if (gameState === 'not started') {
+      setStartTime(new Date().toLocaleDateString())
+    }
+
+    let mineCount = 0;
+    let squareCount = 0;
+    let hitMine = false;
+    board.forEach(row => {
+      row.forEach(tile => {
+        mineCount += tile;
+        squareCount += 1;
+      });
+    });
+    revealedCells.forEach(cell => {
+      const [row, col] = cell.split('-').map(Number);
+      if (board[row][col] === 1) {
+        hitMine = true;
+      }
+    })
+
+    if (hitMine) {
+      setGameState('lose');
+      return;
+    }
+    if (revealedCells.length === squareCount - mineCount) {
+      setGameState('win');
+    }
+  }
+
+  useEffect(() => {
+    manageGameState()
+  }, [revealedCells]);
 
   function revealCellFactory(row, col) {
     // return a function that will update this component's state
@@ -97,11 +139,17 @@ const Board = ({ board }) => {
 
   return (
     <div className="minesweeper-board">
-      {board.map((row, rowIndex) => (
+      {(gameState === 'not started' || gameState === 'in progress') && board.map((row, rowIndex) => (
         <div key={rowIndex} className="board-row">
           {row.map((cell, columnIndex) => renderCell(cell, rowIndex, columnIndex, board))}
         </div>
       ))}
+      {(gameState === 'win') &&
+        <h1>win!</h1>
+      }
+      {(gameState === 'lose') &&
+        <h1>lose!</h1>
+      }
     </div>
   );
 };
