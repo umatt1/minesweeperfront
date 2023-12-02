@@ -1,12 +1,10 @@
 import React from 'react';
 import './Cell.css'
 
-const Cell = ({ value, isRevealed, onClick, surrounding, isFlagged }) => {
+const Cell = ({ value, isRevealed, onClick, surrounding, isFlagged, onRightClick }) => {
   function handleContextMenu(event) {
     event.preventDefault(); // Prevent the default context menu
-    
-    console.log('right clicked on a tile');
-    // You can add more logic here if needed
+    onRightClick()
   }
 
   function tileValue(isRevealed, surrounding, isFlagged) {
