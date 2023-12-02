@@ -17,6 +17,7 @@ const Board = ({ board }) => {
   function manageGameState() {
     if (gameState === 'not started') {
       setStartTime(new Date().toLocaleDateString())
+      setGameState('in progress')
     }
 
     let mineCount = 0;
