@@ -12,7 +12,7 @@ const Cell = ({ value, isRevealed, onClick, surrounding, isFlagged, onRightClick
     if (isRevealed) {
       return (value === 1 ? '💣' : surrounding);
     } else if (isFlagged) {
-      return <img src='/america.png' alt={'flag'}/>;
+      return '🏳️‍🌈';
     } else {
       return ' ';
     }
