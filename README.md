@@ -72,7 +72,6 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 
 ### [TODO]
 FOR NOW:
-Track board state (not started, in progress, win, lost)
 Track time to solve on board state
 Customize emojis for flagging, bombs on the tiles
 
