@@ -91,11 +91,9 @@ const Board = ({ board }) => {
     return () => {
       // flag if unflagged
       if (!isFlagged) {
-        console.log(`flagging ${row}-${col}`)
         setFlaggedCells([...flaggedCells, `${row}-${col}`])
       } else {
         // unflag if flagged
-        console.log(`unflagging ${row}-${col}`)
         const toRemove = flaggedCells.indexOf(`${row}-${col}`)
         setFlaggedCells([...flaggedCells.slice(0, toRemove), ...flaggedCells.slice(toRemove+1, flaggedCells.length)])
       }

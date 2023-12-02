@@ -27,7 +27,6 @@ const getPuzzle = async () => {
   api.get("puzzles/2")
   .then(
     (e) => {
-      console.log(e);
       setPuzzle(e.layout);
     }
   )
