@@ -20,7 +20,6 @@ const Board = ({ board }) => {
       return;
     }
     const touched = revealedCells.slice(0, revealedCells.length);
-    touched.push(...flaggedCells);
     touched.push(`${row}-${col}`)
     const stack = [];
     if (board[row][col] === 0 && surroundingMines(row, col, board) === 0) {stack.push({row: row, col: col});}
