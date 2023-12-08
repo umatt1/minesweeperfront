@@ -71,13 +71,11 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 
 
 ### [TODO]
-FOR NOW:
-Customize emojis for flagging, bombs on the tiles
-
-LATER:
 Create users
-Generate new puzzles assigned to the day
-Grab puzzle assigned to current day
+Better win/loss screens
+User storage / cookie storage of wins/losses for each day and then an export
+Everything having to do with users basically
+Solves leaderboard
 
 
 ### [RESOURCES]
