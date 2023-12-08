@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Cell from './Cell';
 import './Board.css'
 
-const Board = ({ board }) => {
+const Board = ({ layout }) => {
   const [revealedCells, setRevealedCells] = useState([]);
   const [flaggedCells, setFlaggedCells] = useState([]);
   const [gameState, setGameState] = useState('not started');
@@ -18,7 +18,7 @@ const Board = ({ board }) => {
     let mineCount = 0;
     let squareCount = 0;
     let hitMine = false;
-    board.forEach(row => {
+    layout.forEach(row => {
       row.forEach(tile => {
         mineCount += tile;
         squareCount += 1;
@@ -26,7 +26,7 @@ const Board = ({ board }) => {
     });
     revealedCells.forEach(cell => {
       const [row, col] = cell.split('-').map(Number);
-      if (board[row][col] === 1) {
+      if (layout[row][col] === 1) {
         hitMine = true;
       }
     })
@@ -55,27 +55,27 @@ const Board = ({ board }) => {
   function revealChunk(row, col) {
     // perform the searching part of revealing a large chunk of cells
     // checks
-    if (revealedCells.includes(`${row}-${col}`) || row < 0 || col < 0 || row >= board.length || col >= board.at(0).length || flaggedCells.includes(`${row}-${col}`)) {
+    if (revealedCells.includes(`${row}-${col}`) || row < 0 || col < 0 || row >= layout.length || col >= layout.at(0).length || flaggedCells.includes(`${row}-${col}`)) {
       return;
     }
     const touched = revealedCells.slice(0, revealedCells.length);
     touched.push(`${row}-${col}`)
     const stack = [];
-    if (board[row][col] === 0 && surroundingMines(row, col, board) === 0) {stack.push({row: row, col: col});}
+    if (layout[row][col] === 0 && surroundingMines(row, col, layout) === 0) {stack.push({row: row, col: col});}
     while (stack.length > 0) {
       const center = stack.pop();
       for (let r = center.row-1; r < center.row+2; r++) {
         for (let c = center.col-1; c < center.col+2; c++) {
           // reveal unrevealed surroundings
-          if (touched.includes(`${r}-${c}`) || r < 0 || c < 0 || r >= board.length || c >= board.at(0).length || flaggedCells.includes(`${r}-${c}`)) {
+          if (touched.includes(`${r}-${c}`) || r < 0 || c < 0 || r >= layout.length || c >= layout.at(0).length || flaggedCells.includes(`${r}-${c}`)) {
             continue;
           }
-          if (board[r][c] === 1) {
+          if (layout[r][c] === 1) {
             continue;
           }
           touched.push(`${r}-${c}`)
           // add 0's to the stack
-          if (surroundingMines(r,c,board) === 0) {
+          if (surroundingMines(r,c,layout) === 0) {
             stack.push({row: r, col: c});
           }
         }
@@ -134,9 +134,9 @@ const Board = ({ board }) => {
 
   return (
     <div className="minesweeper-board">
-      {(gameState === 'not started' || gameState === 'in progress') && board.map((row, rowIndex) => (
+      {(gameState === 'not started' || gameState === 'in progress') && layout.map((row, rowIndex) => (
         <div key={rowIndex} className="board-row">
-          {row.map((cell, columnIndex) => renderCell(cell, rowIndex, columnIndex, board))}
+          {row.map((cell, columnIndex) => renderCell(cell, rowIndex, columnIndex, layout))}
         </div>
       ))}
       {(gameState === 'win') &&
