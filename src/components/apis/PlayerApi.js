@@ -1,4 +1,3 @@
-// Api.js
 import axios from 'axios';
 
 const apiUrl = process.env.REACT_APP_BACKEND_URL;
@@ -7,23 +6,20 @@ class PlayerApi {
   constructor() {
     this.instance = axios.create({
       baseURL: apiUrl,
-      //timeout: 10000,
+      // timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Headers': '*',
-        'Access-Control-Allow-Origin': '*'
-      }
+      },
     });
   }
 
   renderPuzzle(puzzle) {
     const newLayout = [];
     for (let rowInd = 0; rowInd < puzzle.height; rowInd++) {
-      let row = puzzle.layout.slice(rowInd * puzzle.width, (rowInd * puzzle.width)+puzzle.width)
-      newLayout.push(row)
+      let row = puzzle.layout.slice(rowInd * puzzle.width, (rowInd * puzzle.width) + puzzle.width);
+      newLayout.push(row);
     }
     puzzle.layout = newLayout;
-
   }
 
   async getPuzzleOfTheDay() {
