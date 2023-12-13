@@ -2,6 +2,7 @@ import './App.css';
 import PuzzleApi from './components/apis/PuzzleApi';
 import React, { useState, useEffect } from 'react';
 import Board from './components/minesweeper/Board';
+import Button from './components/common/Button';
 
 const api = new PuzzleApi();
 
@@ -27,6 +28,7 @@ function App() {
       <header className="App-header">
         <h1>Minesweeper Game</h1>
         {puzzle && <Board layout={puzzle} />}
+        <Button value={"button"}/>
       </header>
     </div>
   );
