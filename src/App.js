@@ -1,9 +1,9 @@
 import './App.css';
-import PlayerApi from './components/apis/PlayerApi';
+import PuzzleApi from './components/apis/PuzzleApi';
 import React, { useState, useEffect } from 'react';
 import Board from './components/minesweeper/Board';
 
-const api = new PlayerApi();
+const api = new PuzzleApi();
 
 function App() {
   const [puzzle, setPuzzle] = useState(null);
