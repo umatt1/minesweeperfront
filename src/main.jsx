@@ -4,7 +4,6 @@ import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
-import './index.css'
 import MinesweeperPage from './pages/MinesweeperPage';
 
 const router = createBrowserRouter([
