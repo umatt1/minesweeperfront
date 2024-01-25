@@ -1,0 +1,28 @@
+# Node.js
+node_modules/
+
+# Build
+/dist/
+/.cache/
+/.vite/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor files
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env
+
