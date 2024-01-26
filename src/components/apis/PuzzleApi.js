@@ -1,11 +1,9 @@
 import axios from 'axios';
 
-const apiUrl = process.env.REACT_APP_BACKEND_URL;
-
 class PuzzleApi {
   constructor() {
     this.instance = axios.create({
-      baseURL: apiUrl,
+      baseURL: import.meta.env.VITE_BACKEND_URL,
       // timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
@@ -24,7 +22,7 @@ class PuzzleApi {
 
   async getPuzzleOfTheDay() {
     try {
-      const puzzle = await this.get('/puzzles/getPuzzleByDate');
+      let puzzle = await this.get('/puzzles/getPuzzleByDate');
       this.renderPuzzle(puzzle);
       return puzzle;
     } catch (error) {
