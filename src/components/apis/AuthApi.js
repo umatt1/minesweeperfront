@@ -6,22 +6,16 @@ class AuthApi extends Api {
     }
     
     async login(formData) {
-        const username = formData.username;
-        const password = formData.password;
         const response = await this.post("/auth/login", formData)
+        return response;
+    }
+
+    async register(formData) {
+        const response = await this.post("/auth/register", formData)
         console.log(response)
         return response;
     }
 
-    async register(username, password) {
-        // do register
-        return;
-    }
-
-    async logout(username, password) {
-        // do logout
-        return;
-    }
 
 }
 

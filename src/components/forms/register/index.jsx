@@ -6,7 +6,7 @@ import LogoutForm from '../logout';
 
 const api = new AuthApi();
 
-const LoginForm = ({}) => {
+const RegisterForm = ({}) => {
     const [formData, setFormData] = useState({
         username: '',
         password: '',
@@ -22,54 +22,22 @@ const LoginForm = ({}) => {
         });
     }
 
-    const handleLogout = async (e) => {
-        removeCookie('jwt')
-        removeCookie('username')
-    }
-
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // TODO: Send login request to the Spring Boot backend
-        // Use formData.username and formData.password
+        try {
+            const response = await api.register(formData);
+            setMessage("Registration for " + response.username + " successful! Navigating to login page")
 
-        // Example using fetch:
-        // const response = await fetch('/api/auth/login', {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify(formData),
-        // });
-
-        const response = await api.login(formData);
-
-        if (response.jwt) {
-            // store retrieved token in a cookie
-            setCookie("jwt", response.jwt)
-            setCookie("username", response.user.username)
-            // redirect to next page
-        } else {
-            setMessage("Login failed!")
+        } catch (error) {
+            setMessage("Registration failed!")
         }
 
-        //const response = await PlayerApi
-
-        // TODO: Handle response, store token, and navigate to the next page
-        // Example:
-        // if (response.ok) {
-        //     const data = await response.json();
-        //     // Store token in a secure way (localStorage, cookies, etc.)
-        //     // Redirect to the next page
-        //     history.push('/dashboard');
-        // } else {
-        //     // Handle login failure
-        // }
     };
     
     return (<>
         {!cookies.jwt && <form onSubmit={handleSubmit}>
-            <h3>Login</h3>
+            <h3>Register</h3>
             <label>
                 Username:
                 <input
@@ -90,7 +58,7 @@ const LoginForm = ({}) => {
                 />
             </label>
             <br />
-            <button type="submit">Login</button>
+            <button type="submit">Register</button>
             {message != "" && <p>{message}</p>}
         </form>}
         {cookies.jwt && <div>
@@ -101,4 +69,4 @@ const LoginForm = ({}) => {
     );
 }
 
-export default LoginForm;
+export default RegisterForm;
