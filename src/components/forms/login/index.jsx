@@ -1,18 +1,29 @@
-import React, {useState} from 'react'
-import PlayerApi from '../../apis/PlayerApi';
-import './style.css'
+import React, {useState} from 'react';
+import AuthApi from '../../apis/AuthApi';
+import { useCookies } from 'react-cookie';
+import './style.css';
+
+const api = new AuthApi();
 
 const LoginForm = ({}) => {
     const [formData, setFormData] = useState({
         username: '',
         password: '',
     });
+    const [message, setMessage] = useState("")
+    const [cookies, setCookie, removeCookie] = useCookies(['jwt', "username"]);
+
 
     const handleChange = (e) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value,
         });
+    }
+
+    const handleLogout = async (e) => {
+        removeCookie('jwt')
+        removeCookie('username')
     }
 
     const handleSubmit = async (e) => {
@@ -30,6 +41,17 @@ const LoginForm = ({}) => {
         //     body: JSON.stringify(formData),
         // });
 
+        const response = await api.login(formData);
+
+        if (response.jwt) {
+            // store retrieved token in a cookie
+            setCookie("jwt", response.jwt)
+            setCookie("username", response.user.username)
+            // redirect to next page
+        } else {
+            setMessage("Login failed!")
+        }
+
         //const response = await PlayerApi
 
         // TODO: Handle response, store token, and navigate to the next page
@@ -44,8 +66,8 @@ const LoginForm = ({}) => {
         // }
     };
     
-    return (
-        <form onSubmit={handleSubmit}>
+    return (<>
+        {!cookies.jwt && <form onSubmit={handleSubmit}>
             <label>
                 Username:
                 <input
@@ -67,7 +89,15 @@ const LoginForm = ({}) => {
             </label>
             <br />
             <button type="submit">Login</button>
-        </form>
+            {message != "" && <p>{message}</p>}
+        </form>}
+        {cookies.jwt && <div>
+            <p>{"Welcome, "+ cookies.username} </p>
+            <form onSubmit={handleLogout}>
+            <button type="submit">Sign out</button>
+            </form>
+            </div>}
+        </>
     );
 }
 
