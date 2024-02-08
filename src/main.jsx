@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 import MinesweeperPage from './pages/MinesweeperPage';
 import UserPage from './pages/UserPage';
+import RegistrationPage from './pages/RegistrationPage';
 
 const router = createBrowserRouter([
   {
@@ -15,6 +16,10 @@ const router = createBrowserRouter([
   {
     path: "/user",
     element: <UserPage/>
+  },
+  {
+    path: "/register",
+    element: <RegistrationPage/>
   }
 ])
 

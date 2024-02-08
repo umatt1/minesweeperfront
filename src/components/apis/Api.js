@@ -8,41 +8,52 @@ class Api {
       baseURL: apiUrl,
       // timeout: 10000,
       headers: {
-        'Content-Type': 'application/json',
       },
     });
   }
 
-  async get(endpoint) {
+  generateConfig(token = null) {
+    if (token != null) {
+      return {
+        Authorization : `Bearer ${token}`,
+      }
+    }
+    return {}
+  }
+
+  async get(endpoint, token = null) {
     try {
-      const response = await this.instance.get(endpoint);
+      console.log(`GETTING ${endpoint} WITH TOKEN ${token}`)
+      console.log(this.generateConfig(token))
+      const response = await this.instance.get(endpoint, {}, this.generateConfig(token));
+      console.log(response)
       return response.data;
     } catch (error) {
       throw error;
     }
   }
 
-  async post(endpoint, data) {
+  async post(endpoint, data, token = null) {
     try {
-      const response = await this.instance.post(endpoint, data);
+      const response = await this.instance.post(endpoint, data, this.generateConfig(token));
       return response.data;
     } catch (error) {
       throw error;
     }
   }
 
-  async put(endpoint, data) {
+  async put(endpoint, data, token = null) {
     try {
-      const response = await this.instance.put(endpoint, data);
+      const response = await this.instance.put(endpoint, data, this.generateConfig(token));
       return response.data;
     } catch (error) {
       throw error;
     }
   }
 
-  async delete(endpoint) {
+  async delete(endpoint, token = null) {
     try {
-      const response = await this.instance.delete(endpoint);
+      const response = await this.instance.delete(endpoint, data, this.generateConfig(token));
       return response.data;
     } catch (error) {
       throw error;
