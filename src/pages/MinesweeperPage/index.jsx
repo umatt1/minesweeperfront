@@ -27,11 +27,13 @@ function MinesweeperPage() {
   }, []);
 
   return (
+    <>
+    <Navbar/>
     <div className='page'>
-      <Navbar/>
       <h1>Minesweeper Game</h1>
       {puzzle && <Board layout={puzzle} />}
     </div>
+    </>
   );
 }
 
