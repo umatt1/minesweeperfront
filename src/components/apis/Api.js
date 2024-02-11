@@ -8,34 +8,34 @@ class Api {
       baseURL: apiUrl,
       // timeout: 10000,
       headers: {
+        'Access-Control-Allow-Origin' : "*",
+        'Access-Control-Allow-Methods' :'GET,PUT,POST,DELETE,PATCH,OPTIONS',
       },
     });
   }
 
   generateConfig(token = null) {
     if (token != null) {
-      return {
-        Authorization : `Bearer ${token}`,
-      }
+      return {headers: {
+        "Authorization" : "Bearer " + token,
+      }}
     }
     return {}
   }
 
   async get(endpoint, token = null) {
     try {
-      console.log(`GETTING ${endpoint} WITH TOKEN ${token}`)
-      console.log(this.generateConfig(token))
-      const response = await this.instance.get(endpoint, {}, this.generateConfig(token));
-      console.log(response)
+      const response = await axios.get(apiUrl + endpoint, this.generateConfig(token));
       return response.data;
     } catch (error) {
+      console.error(error)
       throw error;
     }
   }
 
   async post(endpoint, data, token = null) {
     try {
-      const response = await this.instance.post(endpoint, data, this.generateConfig(token));
+      const response = await axios.post(apiUrl + endpoint, data, this.generateConfig(token));
       return response.data;
     } catch (error) {
       throw error;
@@ -44,7 +44,7 @@ class Api {
 
   async put(endpoint, data, token = null) {
     try {
-      const response = await this.instance.put(endpoint, data, this.generateConfig(token));
+      const response = await axios.put(apiUrl + endpoint, data, this.generateConfig(token));
       return response.data;
     } catch (error) {
       throw error;
@@ -53,7 +53,7 @@ class Api {
 
   async delete(endpoint, token = null) {
     try {
-      const response = await this.instance.delete(endpoint, data, this.generateConfig(token));
+      const response = await axios.delete(apiUrl + endpoint, data, this.generateConfig(token));
       return response.data;
     } catch (error) {
       throw error;

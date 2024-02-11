@@ -12,7 +12,6 @@ class AuthApi extends Api {
 
     async register(formData) {
         const response = await this.post("/auth/register", formData)
-        console.log(response)
         return response;
     }
 

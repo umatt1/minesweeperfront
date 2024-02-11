@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
+// TODO: Destroy this whole thing
 class PlayerApi {
   constructor() {
     this.instance = axios.create({
