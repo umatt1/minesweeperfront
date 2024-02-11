@@ -1,10 +1,10 @@
-// MinesweeperPage.jsx
 import React, { useState, useEffect } from 'react';
 import Board from '../../components/minesweeper/Board';
 import PuzzleApi from '../../components/apis/PuzzleApi';
 import { useCookies } from 'react-cookie';
 
 import './style.css';
+import Navbar from '../../components/Navbar';
 
 const api = new PuzzleApi();
 
@@ -28,6 +28,7 @@ function MinesweeperPage() {
 
   return (
     <div className='page'>
+      <Navbar/>
       <h1>Minesweeper Game</h1>
       {puzzle && <Board layout={puzzle} />}
     </div>
