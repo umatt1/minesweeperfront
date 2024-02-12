@@ -159,5 +159,4 @@ const Board = ({ layout }) => {
     </div>
   );
 };
-{}
 export default Board;
