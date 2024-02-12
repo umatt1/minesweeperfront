@@ -33,6 +33,7 @@ const Board = ({ layout }) => {
 
     if (hitMine) {
       setGameState('lose');
+      setEndTime(new Date());
       return;
     }
     if (revealedCells.length === squareCount - mineCount) {
@@ -113,11 +114,11 @@ const Board = ({ layout }) => {
     return count;
   }
 
-  const renderCell = (value, row, col, layout) => {
+  const renderCell = (value, row, col, layout, clickable=true) => {
     // create a cell
     const isRevealed = revealedCells.includes(`${row}-${col}`);
     const isFlagged = flaggedCells.includes(`${row}-${col}`)
-    const revealer = revealCellFactory(row, col);
+    const revealer = clickable ? revealCellFactory(row, col) : (row, col) => {};
     const flagger = flagCellFactory(row, col, isFlagged);
     return (
       <Cell
@@ -132,24 +133,31 @@ const Board = ({ layout }) => {
     );
   };
 
+  const renderBoard = (clickable=true) => {
+    return layout.map((row, rowIndex) => (
+      <div key={rowIndex} className="board-row">
+        {row.map((cell, columnIndex) => renderCell(cell, rowIndex, columnIndex, layout, clickable))}
+      </div>
+    ))
+  }
+
   return (
     <div className="minesweeper-board">
-      {(gameState === 'not started' || gameState === 'in progress') && layout.map((row, rowIndex) => (
-        <div key={rowIndex} className="board-row">
-          {row.map((cell, columnIndex) => renderCell(cell, rowIndex, columnIndex, layout))}
-        </div>
-      ))}
-      {(gameState === 'win') &&
-        <div>
-          <h1>win!</h1>
-          <p>Time taken: {((endTime - startTime) / 1000).toFixed(2)} seconds</p>
+      {(gameState === 'not started' || gameState === 'in progress') && <div>
+          {renderBoard(true)}
+        </div>}
+      {(gameState === 'win') && <div>
+          {renderBoard(false)}
+          <h3>Won in {((endTime-startTime)/ 1000).toFixed(2)} seconds</h3>
         </div>
       }
-      {(gameState === 'lose') &&
-        <h1>lose!</h1>
+      {(gameState === 'lose') && <div>
+          {renderBoard(false)}
+          <h3>Lost in {((endTime-startTime)/ 1000).toFixed(2)} seconds</h3>
+        </div>
       }
     </div>
   );
 };
-
+{}
 export default Board;
