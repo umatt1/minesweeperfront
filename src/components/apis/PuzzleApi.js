@@ -20,6 +20,16 @@ class PuzzleApi extends Api {
           this.renderPuzzle(puzzle);
           return puzzle;
         } catch (error) {
+          if (error.response.status === 404) {
+            try { // 404 = may not exist. let's try creating it
+              let puzzle = await this.post('/puzzle/createPuzzleOfTheDay', null, token);
+              console.log("successfully created a puzzle")
+              this.renderPuzzle(puzzle);
+              return puzzle;
+            } catch (error) {
+              throw error;
+            }
+          }
           throw error;
         }
       }
