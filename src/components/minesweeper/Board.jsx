@@ -116,7 +116,7 @@ const Board = ({ layout }) => {
 
   const renderCell = (value, row, col, layout, clickable=true) => {
     // create a cell
-    const isRevealed = revealedCells.includes(`${row}-${col}`);
+    const isRevealed = revealedCells.includes(`${row}-${col}`) || ["win", "lose"].includes(gameState);
     const isFlagged = flaggedCells.includes(`${row}-${col}`)
     const revealer = clickable ? revealCellFactory(row, col) : (row, col) => {};
     const flagger = flagCellFactory(row, col, isFlagged);
