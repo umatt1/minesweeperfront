@@ -27,10 +27,10 @@ const RegisterForm = ({}) => {
 
         try {
             const response = await api.register(formData);
-            setMessage("Registration for " + response.username + " successful! Navigating to login page")
+            setMessage("Registration for " + response.username + " successful! Login with the new code");
 
         } catch (error) {
-            setMessage("Registration failed!")
+            setMessage("Registration failed!");
         }
 
     };
