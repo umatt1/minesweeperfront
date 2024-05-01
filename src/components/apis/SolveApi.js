@@ -1,54 +1,29 @@
-import axios from 'axios';
+import Api from "./Api";
 
-const apiUrl = import.meta.env.VITE_BACKEND_URL;
-
-// TODO: Reconstruct this API
-class SolveApi {
-  constructor() {
-    this.instance = axios.create({
-      baseURL: apiUrl,
-      // timeout: 10000,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-  }
-
-  async get(endpoint) {
-    try {
-      const response = await this.instance.get(endpoint);
-      return response.data;
-    } catch (error) {
-      throw error;
+class SolveApi extends Api {
+    constructor() {
+        super();
     }
-  }
 
-  async post(endpoint, data) {
-    try {
-      const response = await this.instance.post(endpoint, data);
-      return response.data;
-    } catch (error) {
-      throw error;
+    async postSolve(solve, token) {
+      try {
+        const response = await this.post("/solve", solve, token)
+        return response;
+      } catch (error) {
+        throw error;
+      }
     }
-  }
 
-  async put(endpoint, data) {
-    try {
-      const response = await this.instance.put(endpoint, data);
-      return response.data;
-    } catch (error) {
-      throw error;
+    async getWeeksSolves(user, token) {
+      try {
+        const response = await this.get("/solve/"+user, token);
+        return response;
+      } catch (error) {
+        throw error;
+      }
     }
-  }
 
-  async delete(endpoint) {
-    try {
-      const response = await this.instance.delete(endpoint);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  }
+
 }
 
 export default SolveApi;
