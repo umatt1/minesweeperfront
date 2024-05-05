@@ -12,6 +12,7 @@ import LogoutForm from '../../components/forms/logout';
 const api = new PuzzleApi();
 
 function MinesweeperPage() {
+  const [puzzleId, setPuzzleId] = useState(null);
   const [puzzle, setPuzzle] = useState(null);
   const [cookies, setCookie, removeCookie] = useCookies(['jwt', "username"]);
   const [signIn, setSignIn] = useState(true);
@@ -21,7 +22,10 @@ function MinesweeperPage() {
     const fetchData = async () => {
       try {
         const puzzleData = await api.getPuzzleOfTheDay(cookies.jwt);
+        console.log("ayo")
+        console.log(puzzleData);
         setPuzzle(puzzleData.layout);
+        setPuzzleId(puzzleData.id);
       } catch (error) {
         console.error('Error fetching puzzle:', error);
       }
@@ -39,6 +43,7 @@ function MinesweeperPage() {
     <Navbar/>
     <div className='page'>
       <h1>Minesweeper</h1>
+      {cookies.jwt && puzzle && <Board layout={puzzle} puzzleId={puzzleId}/>}
       {cookies.jwt && <div>
         <p>You're currently using puzzle code {cookies.username}. Want to sign out? <LogoutForm/></p>
       </div>}
@@ -52,7 +57,6 @@ function MinesweeperPage() {
           <RegisterForm/>
         </div>}
       </div>}
-      {cookies.jwt && puzzle && <Board layout={puzzle} />}
     </div>
     </>
   );
