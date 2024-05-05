@@ -8,22 +8,24 @@ import Navbar from '../../components/Navbar';
 import LoginForm from '../../components/forms/login'
 import RegisterForm from '../../components/forms/register'
 import LogoutForm from '../../components/forms/logout';
+import Solves from '../../components/solves';
+import SolveApi from '../../components/apis/SolveApi';
 
 const api = new PuzzleApi();
+const solveApi = new SolveApi();
 
 function MinesweeperPage() {
   const [puzzleId, setPuzzleId] = useState(null);
   const [puzzle, setPuzzle] = useState(null);
   const [cookies, setCookie, removeCookie] = useCookies(['jwt', "username"]);
   const [signIn, setSignIn] = useState(true);
+  const [solves, setSolves] = useState([]);
 
-
+  // retrieve puzzle data
   useEffect(() => {
     const fetchData = async () => {
       try {
         const puzzleData = await api.getPuzzleOfTheDay(cookies.jwt);
-        console.log("ayo")
-        console.log(puzzleData);
         setPuzzle(puzzleData.layout);
         setPuzzleId(puzzleData.id);
       } catch (error) {
@@ -34,17 +36,55 @@ function MinesweeperPage() {
     fetchData();
   }, [cookies.jwt]);
 
+  // retrieve solve data
+  useEffect(() => {
+    const fetchSolveData = async () => {
+      try {
+        const solveData = await solveApi.getWeeksSolves(cookies.username, cookies.jwt);
+        setSolves(solveData);
+      } catch (error) {
+        setSolves([]);
+        console.error('Error fetching solves:', error)
+      }
+    };
+
+    fetchSolveData();
+  }, [cookies.jwt]);
+
   function toggleSignIn() {
     setSignIn(!signIn);
   }
+
+  function completedToday() {
+    const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+    for (const solve of solves) {
+      if (solve.puzzle.date === today) {
+        return true; // Puzzle completed today
+      }
+    }
+    return false; // Puzzle not completed today
+  }
+
+  const pushASolveLocally = (solveData) => {
+    const solveObject = {
+        player: { username: cookies.username }, // Assuming username is required
+        puzzle: { date: new Date().toISOString(), layout: [] }, // Assuming layout and puzzleId are required
+        success: solveData.success,
+        time: solveData.time,
+    };
+    setSolves([...solves, solveObject])
+};
+
 
   return (
     <>
     <Navbar/>
     <div className='page'>
-      <h1>Minesweeper</h1>
-      {cookies.jwt && puzzle && <Board layout={puzzle} puzzleId={puzzleId}/>}
-      {cookies.jwt && <div>
+      <h1>Minesweeper Puzzle #{puzzleId}</h1>
+      {cookies.jwt && puzzle && !completedToday() && <Board layout={puzzle} puzzleId={puzzleId} pushASolveLocally={pushASolveLocally}/>}
+      {cookies.jwt && puzzle && completedToday() && <p>You already completed puzzle #{puzzleId}</p>}
+      {cookies.jwt && cookies.username && <Solves solves={solves}/>}
+      {cookies.jwt && cookies.username && <div>
         <p>You're currently using puzzle code {cookies.username}. Want to sign out? <LogoutForm/></p>
       </div>}
       {!cookies.jwt && <div>

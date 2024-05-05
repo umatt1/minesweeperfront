@@ -6,7 +6,7 @@ import { useCookies } from 'react-cookie';
 
 const api = new SolveApi();
 
-const Board = ({ layout, puzzleId }) => {
+const Board = ({ layout, puzzleId, pushASolveLocally }) => {
   const [revealedCells, setRevealedCells] = useState([]);
   const [flaggedCells, setFlaggedCells] = useState([]);
   const [gameState, setGameState] = useState('not started');
@@ -46,6 +46,10 @@ const Board = ({ layout, puzzleId }) => {
         time: (end-startTime)/1000,
         success: false
       }, cookies.jwt);
+      pushASolveLocally({
+        success: false,
+        time: (end-startTime)/1000
+      });
       return;
     }
     if (revealedCells.length === squareCount - mineCount) {
@@ -57,8 +61,11 @@ const Board = ({ layout, puzzleId }) => {
         puzzleId: puzzleId,
         time: (end-startTime)/1000,
         success: true
-
       }, cookies.jwt);
+      pushASolveLocally({
+        success: true,
+        time: (end-startTime)/1000
+      });
     }
   }
 
