@@ -68,7 +68,7 @@ function MinesweeperPage() {
   const pushASolveLocally = (solveData) => {
     const solveObject = {
         player: { username: cookies.username }, // Assuming username is required
-        puzzle: { date: new Date().toISOString(), layout: [] }, // Assuming layout and puzzleId are required
+        puzzle: { date: new Date().toISOString().split("T")[0], layout: [] }, // Assuming layout and puzzleId are required
         success: solveData.success,
         time: solveData.time,
     };
