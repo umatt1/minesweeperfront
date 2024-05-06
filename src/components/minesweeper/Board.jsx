@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import Cell from './Cell';
 import './Board.css'
+import SolveApi from '../apis/SolveApi';
+import { useCookies } from 'react-cookie';
 
-const Board = ({ layout }) => {
+const api = new SolveApi();
+
+const Board = ({ layout, puzzleId, pushASolveLocally }) => {
   const [revealedCells, setRevealedCells] = useState([]);
   const [flaggedCells, setFlaggedCells] = useState([]);
   const [gameState, setGameState] = useState('not started');
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
+  const [cookies, setCookie, removeCookie] = useCookies(['jwt', "username"]);
 
   function manageGameState() {
     if (gameState === 'not started') {
@@ -32,13 +37,35 @@ const Board = ({ layout }) => {
     })
 
     if (hitMine) {
+      const end = new Date();
       setGameState('lose');
-      setEndTime(new Date());
+      setEndTime(end);
+      api.postSolve({
+        username: cookies.username,
+        puzzleId: puzzleId,
+        time: (end-startTime)/1000,
+        success: false
+      }, cookies.jwt);
+      pushASolveLocally({
+        success: false,
+        time: (end-startTime)/1000
+      });
       return;
     }
     if (revealedCells.length === squareCount - mineCount) {
+      const end = new Date();
       setGameState('win');
-      setEndTime(new Date());
+      setEndTime(end);
+      api.postSolve({
+        username: cookies.username,
+        puzzleId: puzzleId,
+        time: (end-startTime)/1000,
+        success: true
+      }, cookies.jwt);
+      pushASolveLocally({
+        success: true,
+        time: (end-startTime)/1000
+      });
     }
   }
 

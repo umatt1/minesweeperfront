@@ -1,0 +1,25 @@
+.solve-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.days {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px; /* Adjust margin as needed */
+}
+
+.emojis {
+    display: flex;
+    justify-content: space-between;
+    font-size: 20px; /* Adjust font size as needed */
+}
+
+.day {
+    margin: 0 5px; /* Adjust margin as needed */
+}
+
+.emoji {
+    margin: 0 5px; /* Adjust margin as needed */
+}
