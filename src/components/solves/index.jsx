@@ -17,6 +17,7 @@ const Solves = ({ solves }) => {
     solves.forEach(solve => {
         const solveDayOfWeek = new Date(solve.puzzle.date).toLocaleDateString('en-US', { weekday: 'short' });
         solvesByDay[solveDayOfWeek] = solve.success;
+        console.log(solve.puzzle.date, solveDayOfWeek);
     });
 
     // Iterate over each day of the week
@@ -30,9 +31,9 @@ const Solves = ({ solves }) => {
                     // If there's a solve for the day, display emojis based on success status
                     if (solveSuccess !== undefined) {
                         return (
-                            <div>
-                                <div key={day} className="day">{day}</div>
-                                <div key={day} title={`Solves for ${day}`} className="emoji">
+                            <div key={day}>
+                                <div className="day">{day}</div>
+                                <div title={`Solves for ${day}`} className="emoji">
                                     {solveSuccess ? '🟢' : '🔴'}
                                 </div>
                             </div>
@@ -40,10 +41,10 @@ const Solves = ({ solves }) => {
                     } else {
                         // If there's no solve for the day, display a gray emoji
                         return (
-                            <div>
-                                <div key={day} className="day">{day}</div>
+                            <div key={day}>
+                                <div className="day">{day}</div>
 
-                                <div key={day} title={`No solve for ${day}`} className="emoji">
+                                <div title={`No solve for ${day}`} className="emoji">
                                     ⚪
                                 </div>
                             </div>
