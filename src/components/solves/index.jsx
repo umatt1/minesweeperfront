@@ -23,12 +23,6 @@ const Solves = ({ solves }) => {
     const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
     return (
-        <div className="solve-bar">
-            <div className="days">
-                {weekDays.map(day => (
-                    <span key={day} className="day">{day}</span>
-                ))}
-            </div>
             <div className="emojis">
                 {weekDays.map(day => {
                     const solveSuccess = solvesByDay[day];
@@ -36,21 +30,27 @@ const Solves = ({ solves }) => {
                     // If there's a solve for the day, display emojis based on success status
                     if (solveSuccess !== undefined) {
                         return (
-                            <span key={day} title={`Solves for ${day}`} className="emoji">
-                                {solveSuccess ? '🟢' : '🔴'}
-                            </span>
+                            <div>
+                                <div key={day} className="day">{day}</div>
+                                <div key={day} title={`Solves for ${day}`} className="emoji">
+                                    {solveSuccess ? '🟢' : '🔴'}
+                                </div>
+                            </div>
                         );
                     } else {
                         // If there's no solve for the day, display a gray emoji
                         return (
-                            <span key={day} title={`No solve for ${day}`} className="emoji">
-                                ⚪
-                            </span>
+                            <div>
+                                <div key={day} className="day">{day}</div>
+
+                                <div key={day} title={`No solve for ${day}`} className="emoji">
+                                    ⚪
+                                </div>
+                            </div>
                         );
                     }
                 })}
             </div>
-        </div>
     );
 }
 
