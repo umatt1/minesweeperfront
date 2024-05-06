@@ -15,7 +15,7 @@ const Solves = ({ solves }) => {
 
     // Map solves to solvesByDay
     solves.forEach(solve => {
-        const solveDayOfWeek = new Date(solve.puzzle.date).toLocaleDateString('en-US', { weekday: 'short' });
+        const solveDayOfWeek = new Date(`${solve.puzzle.date}T00:00:00-04:00`).toLocaleDateString('en-US', { weekday: 'short' });
         solvesByDay[solveDayOfWeek] = solve.success;
         console.log(solve.puzzle.date, solveDayOfWeek);
     });
