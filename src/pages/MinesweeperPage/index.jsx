@@ -20,6 +20,7 @@ function MinesweeperPage() {
   const [cookies, setCookie, removeCookie] = useCookies(['jwt', "username"]);
   const [signIn, setSignIn] = useState(true);
   const [solves, setSolves] = useState([]);
+  const [localPush, setLocalPush] = useState(false);
 
   // retrieve puzzle data
   useEffect(() => {
@@ -56,9 +57,9 @@ function MinesweeperPage() {
   }
 
   function completedToday() {
-    const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+    const today = new Date();
     for (const solve of solves) {
-      if (solve.puzzle.date === today) {
+      if (solve.puzzle.date.getDay() === today.getDay()) {
         return true; // Puzzle completed today
       }
     }
@@ -66,9 +67,10 @@ function MinesweeperPage() {
   }
 
   const pushASolveLocally = (solveData) => {
+    setLocalPush(true);
     const solveObject = {
-        player: { username: cookies.username }, // Assuming username is required
-        puzzle: { date: new Date().toISOString().split("T")[0], layout: [] }, // Assuming layout and puzzleId are required
+        player: { username: cookies.username },
+        puzzle: { date: new Date(), layout: [] }, 
         success: solveData.success,
         time: solveData.time,
     };
@@ -81,7 +83,7 @@ function MinesweeperPage() {
     <Navbar/>
     <div className='page'>
       <h1>Minesweeper Puzzle #{puzzleId}</h1>
-      {cookies.jwt && puzzle && !completedToday() && <Board layout={puzzle} puzzleId={puzzleId} pushASolveLocally={pushASolveLocally}/>}
+      {cookies.jwt && puzzle && (localPush || !completedToday()) && <Board layout={puzzle} puzzleId={puzzleId} pushASolveLocally={pushASolveLocally}/>}
       {cookies.jwt && puzzle && completedToday() && <p>You already completed puzzle #{puzzleId}</p>}
       {cookies.jwt && cookies.username && <Solves solves={solves}/>}
       {cookies.jwt && cookies.username && <div>

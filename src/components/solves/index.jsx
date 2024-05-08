@@ -15,10 +15,14 @@ const Solves = ({ solves }) => {
 
     // Map solves to solvesByDay
     solves.forEach(solve => {
-        const solveDayOfWeek = new Date(`${solve.puzzle.date}T00:00:00-04:00`).toLocaleDateString('en-US', { weekday: 'short' });
+        // Ensure solve.puzzle.date is a valid Date object
+        const solveDate = new Date(solve.puzzle.date);
+        // Get the short weekday string
+        const solveDayOfWeek = new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(solveDate);
         solvesByDay[solveDayOfWeek] = solve.success;
-        console.log(solve.puzzle.date, solveDayOfWeek);
     });
+
+    
 
     // Iterate over each day of the week
     const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
