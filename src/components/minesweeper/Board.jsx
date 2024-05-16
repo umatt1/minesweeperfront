@@ -6,10 +6,10 @@ import { useCookies } from 'react-cookie';
 
 const api = new SolveApi();
 
-const Board = ({ layout, puzzleId, pushASolveLocally }) => {
+const Board = ({ layout, puzzleId, pushASolveLocally, solve }) => {
   const [revealedCells, setRevealedCells] = useState([]);
   const [flaggedCells, setFlaggedCells] = useState([]);
-  const [gameState, setGameState] = useState('not started');
+  const [gameState, setGameState] = useState(solve == null ? 'not started' : (solve.success ? "win" : "lose"));
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
   const [cookies, setCookie, removeCookie] = useCookies(['jwt', "username"]);
@@ -175,12 +175,12 @@ const Board = ({ layout, puzzleId, pushASolveLocally }) => {
         </div>}
       {(gameState === 'win') && <div>
           {renderBoard(false)}
-          <h3>Won in {((endTime-startTime)/ 1000).toFixed(2)} seconds</h3>
+          <h3>Won in {solve.time}</h3>
         </div>
       }
       {(gameState === 'lose') && <div>
           {renderBoard(false)}
-          <h3>Lost in {((endTime-startTime)/ 1000).toFixed(2)} seconds</h3>
+          <h3>Lost in {solve.time}</h3>
         </div>
       }
     </div>
