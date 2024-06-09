@@ -1,0 +1,25 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+}
+
+.playButton {
+    color: white;
+    background-color: black;
+}
+
+.buttonsDiv{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+button {
+    font-size: large;
+    border-radius: 1px;
+    margin: 10px;
+    height: 50px;
+    width: 100px;
+}
