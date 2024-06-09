@@ -10,7 +10,6 @@ import RegisterForm from '../../components/forms/register'
 import LogoutForm from '../../components/forms/logout';
 import Solves from '../../components/solves';
 import SolveApi from '../../components/apis/SolveApi';
-import WelcomeScreen from '../WelcomePage';
 
 const api = new PuzzleApi();
 const solveApi = new SolveApi();
@@ -61,10 +60,10 @@ function MinesweeperPage() {
     const today = new Date();
     for (const solve of solves) {
       if (solve.puzzle.date.getDay() === today.getDay()) {
-        return solve; // Puzzle completed today
+        return true; // Puzzle completed today
       }
     }
-    return null; // Puzzle not completed today
+    return false; // Puzzle not completed today
   }
 
   const pushASolveLocally = (solveData) => {
@@ -84,10 +83,12 @@ function MinesweeperPage() {
     <Navbar/>
     <div className='page'>
       <h1>Minesweeper Puzzle #{puzzleId}</h1>
-      <WelcomeScreen/>
-      {cookies.jwt && puzzle && completedToday() != null && <p>You already completed puzzle #{puzzleId} with status {completedToday().success ? 'Success' : 'Failure'}</p>}
-      {cookies.jwt && puzzle && <Board layout={puzzle} puzzleId={puzzleId} pushASolveLocally={pushASolveLocally} solve={completedToday()}/>}
+      {cookies.jwt && puzzle && (localPush || !completedToday()) && <Board layout={puzzle} puzzleId={puzzleId} pushASolveLocally={pushASolveLocally}/>}
+      {cookies.jwt && puzzle && completedToday() && <p>You already completed puzzle #{puzzleId}</p>}
       {cookies.jwt && cookies.username && <Solves solves={solves}/>}
+      {cookies.jwt && cookies.username && <div>
+        <p>You're currently using puzzle code {cookies.username}. Want to sign out? <LogoutForm/></p>
+      </div>}
       {!cookies.jwt && <div>
         {signIn && <div>
           <p>You aren't currently using any puzzle code. You need one to play. Use a puzzle code below or <form onClick={toggleSignIn}><button>register a puzzle code</button></form></p>
