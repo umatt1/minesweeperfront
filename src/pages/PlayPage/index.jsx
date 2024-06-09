@@ -14,12 +14,11 @@ import SolveApi from '../../components/apis/SolveApi';
 const api = new PuzzleApi();
 const solveApi = new SolveApi();
 
-function MinesweeperPage() {
+function PlayPage() {
   const [puzzleId, setPuzzleId] = useState(null);
   const [puzzle, setPuzzle] = useState(null);
   const [cookies, setCookie, removeCookie] = useCookies(['jwt', "username"]);
-  const [signIn, setSignIn] = useState(false);
-  const [register, setRegister] = useState(false);
+  const [signIn, setSignIn] = useState(true);
   const [solves, setSolves] = useState([]);
   const [localPush, setLocalPush] = useState(false);
 
@@ -79,29 +78,20 @@ function MinesweeperPage() {
 };
 
 
+
+
   return (
     <>
-    <Navbar/>
     <div className='page'>
       <h1>Minesweeper Puzzle #{puzzleId}</h1>
-      {cookies.jwt && puzzle && (localPush || !completedToday()) && <Board layout={puzzle} puzzleId={puzzleId} pushASolveLocally={pushASolveLocally}/>}
-      {cookies.jwt && puzzle && completedToday() && <p>You already completed puzzle #{puzzleId}</p>}
-      {cookies.jwt && cookies.username && <Solves solves={solves}/>}
-      {cookies.jwt && cookies.username && <div>
-        <p>You're currently using puzzle code {cookies.username}. Want to sign out? <LogoutForm/></p>
-      </div>}
-
-        {signIn && <div>
-          <p>You aren't currently using any puzzle code. You need one to play. Use a puzzle code below or <form onClick={toggleSignIn}><button>register a puzzle code</button></form></p>
-          <LoginForm/>
-        </div>}
-        {register && <div>
-          <p>You aren't currently using any puzzle code. You need one to play. Register a puzzle code below or <form onClick={toggleSignIn}><button>use a puzzle code</button></form></p>
-          <RegisterForm/>
-        </div>}
+      {<Solves solves={solves}/>}
+      {puzzle && (localPush || !completedToday()) && <Board layout={puzzle} puzzleId={puzzleId} pushASolveLocally={pushASolveLocally}/>}
+      {puzzle && completedToday() && <p>You already completed puzzle #{puzzleId}</p>}
+      <br></br>
+      <Navbar/>
     </div>
     </>
   );
 }
 
-export default MinesweeperPage;
+export default PlayPage;

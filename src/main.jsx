@@ -7,11 +7,21 @@ import {
 import MinesweeperPage from './pages/MinesweeperPage';
 import UserPage from './pages/UserPage';
 import AboutPage from './pages/AboutPage';
+import HomePage from './pages/HomePage';
+import PlayPage from './pages/PlayPage'
 
 const router = createBrowserRouter([
   {
     path: "/",
+    element: <HomePage/>
+  },
+  {
+    path: "/minesweeper",
     element: <MinesweeperPage/>
+  },
+  {
+    path: "/play",
+    element: <PlayPage/>
   },
   {
     path: "/user",

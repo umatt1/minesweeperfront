@@ -1,16 +1,15 @@
 /* Navbar styles */
 .navbar {
-    background-color: darkblue;
     overflow: hidden;
+    display: flex;
+    justify-content: center;
 }
 
 .navbar-link {
-    float: left;
-    display: block;
-    color: white;
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
+    
 }
 
 .navbar-link:hover {
