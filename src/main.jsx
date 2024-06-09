@@ -16,20 +16,8 @@ const router = createBrowserRouter([
     element: <HomePage/>
   },
   {
-    path: "/minesweeper",
-    element: <MinesweeperPage/>
-  },
-  {
     path: "/play",
     element: <PlayPage/>
-  },
-  {
-    path: "/user",
-    element: <UserPage/>
-  },
-  {
-    path: "/about",
-    element: <AboutPage/>
   }
 ])
 
