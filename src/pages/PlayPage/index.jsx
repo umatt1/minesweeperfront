@@ -90,7 +90,7 @@ function PlayPage() {
       "\n" + 
       solvesText + 
       "\n" + 
-      "Try it out yourself at URL"
+      "Try it out yourself at https://www.minesweeple.com"
     )
       .then(() => {
         setCopied(true);
