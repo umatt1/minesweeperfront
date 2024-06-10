@@ -10,11 +10,7 @@ const Cell = ({ value, isRevealed, onClick, surrounding, isFlagged, onRightClick
   }
 
   function handleMouseDown(event) {
-    if (event.button === 2) {
-      // Right-click
-      event.preventDefault();
-      onRightClick();
-    } else {
+    if (event.button === 0) {
       // Left-click
       setTimer(setTimeout(() => {
         onRightClick();
@@ -22,7 +18,7 @@ const Cell = ({ value, isRevealed, onClick, surrounding, isFlagged, onRightClick
     }
   }
 
-  function handleMouseUp(event) {
+  function handleMouseUp() {
     if (timer) {
       clearTimeout(timer);
       setTimer(null);
