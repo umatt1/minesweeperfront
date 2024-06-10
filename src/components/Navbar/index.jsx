@@ -10,7 +10,7 @@ import RegisterForm from '../../components/forms/register';
 
 
 const Navbar = () => {
-
+    const navigate = useNavigate();
     const [cookies, setCookie, removeCookie] = useCookies(['jwt', "username"]);
     const [signIn, setSignIn] = useState(false);
     const [register, setRegister] = useState(false);
