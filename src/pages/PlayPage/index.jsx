@@ -31,6 +31,10 @@ function PlayPage() {
         setPuzzleId(puzzleData.id);
       } catch (error) {
         console.error('Error fetching puzzle:', error);
+        if (error.response.status === 401) {
+          removeCookie("jwt")
+          removeCookie("username")
+        }
       }
     };
 

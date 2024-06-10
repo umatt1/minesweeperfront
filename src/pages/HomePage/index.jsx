@@ -35,6 +35,10 @@ function HomePage() {
         setPuzzleId(puzzleData.id);
       } catch (error) {
         console.error('Error fetching puzzle:', error);
+        if (error.response.status === 401) {
+          removeCookie("jwt")
+          removeCookie("username")
+        }
       }
     };
 
@@ -57,6 +61,10 @@ function HomePage() {
       } catch (error) {
         setSolves([]);
         console.error('Error fetching solves:', error);
+        if (error.response.status === 401) {
+          removeCookie("jwt")
+          removeCookie("username")
+        }
       }
     };
 

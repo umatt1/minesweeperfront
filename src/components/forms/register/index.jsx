@@ -29,6 +29,18 @@ const RegisterForm = ({}) => {
             const response = await api.register(formData);
             setMessage("Registration for " + response.username + " successful! Login with the new code");
 
+            const loginResponse = await api.login(formData);
+
+            if (loginResponse.jwt) {
+                // store retrieved token in a cookie
+                setCookie("jwt", loginResponse.jwt)
+                setCookie("username", loginResponse.user.username)
+                // redirect to next page
+            } else {
+                setMessage("Login failed!")
+            }
+
+
         } catch (error) {
             setMessage("Registration failed!");
         }
