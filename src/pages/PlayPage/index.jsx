@@ -21,6 +21,7 @@ function PlayPage() {
   const [signIn, setSignIn] = useState(true);
   const [solves, setSolves] = useState([]);
   const [localPush, setLocalPush] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // retrieve puzzle data
   useEffect(() => {
@@ -81,6 +82,17 @@ function PlayPage() {
     setSolves([...solves, solveObject])
 };
 
+const handleCopyToClipboard = () => {
+  const shareText = `Check out Minesweeper Puzzle #${puzzleId}!`;
+  navigator.clipboard.writeText(shareText)
+    .then(() => {
+      setCopied(true);
+    })
+    .catch((error) => {
+      console.error('Error copying text to clipboard:', error);
+    });
+};
+
 
 
 
@@ -90,7 +102,12 @@ function PlayPage() {
       <h1>Minesweeper Puzzle #{puzzleId}</h1>
       {<Solves solves={solves}/>}
       {puzzle && (localPush || !completedToday()) && <Board layout={puzzle} puzzleId={puzzleId} pushASolveLocally={pushASolveLocally}/>}
-      {puzzle && completedToday() && <p>You already completed puzzle #{puzzleId}</p>}
+      {puzzle && completedToday() && 
+        <>
+          <p>⛳ Puzzle #{puzzleId} completed! ⛳</p>
+          <button onClick={handleCopyToClipboard}>Share?</button>
+          {copied && <p>Copied to clipboard</p>}
+        </>}
       <br></br>
       <Navbar/>
     </div>
