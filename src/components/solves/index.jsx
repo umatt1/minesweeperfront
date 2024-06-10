@@ -22,18 +22,15 @@ const Solves = forwardRef(({ solves }, ref) => {
     solvesByDay[solveDayOfWeek] = solve.success;
   });
 
+  // Function to generate text representation of solves
   const getSolvesText = () => {
-    const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const daysText = weekDays.join('\t');
-    const emojisText = weekDays.map(day => {
-      const solveSuccess = solvesByDay[day];
-      if (solveSuccess !== undefined) {
-        return solveSuccess ? '🟢' : '🔴';
+    return Object.entries(solvesByDay).map(([day, success]) => {
+      if (success !== undefined) {
+        return `${success ? '🟢' : '🔴'}${day}`;
       } else {
-        return '⚪';
+        return `⚪${day}`;
       }
-    }).join('\t');
-    return `${daysText}\n${emojisText}`;
+    }).join('\n');
   };
 
   useImperativeHandle(ref, () => ({

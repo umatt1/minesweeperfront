@@ -85,7 +85,13 @@ function PlayPage() {
 
   const handleCopyToClipboard = () => {
     const solvesText = solvesRef.current.getSolvesText();
-    navigator.clipboard.writeText(solvesText)
+    navigator.clipboard.writeText(
+      `I finished the daily sweeple in ${solves.at(-1).time}!` +
+      "\n" + 
+      solvesText + 
+      "\n" + 
+      "Try it out yourself at URL"
+    )
       .then(() => {
         setCopied(true);
       })
