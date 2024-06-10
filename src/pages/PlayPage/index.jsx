@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Board from '../../components/minesweeper/Board';
 import PuzzleApi from '../../components/apis/PuzzleApi';
 import { useCookies } from 'react-cookie';
 
 import './style.css';
 import Navbar from '../../components/Navbar';
-import LoginForm from '../../components/forms/login'
-import RegisterForm from '../../components/forms/register'
+import LoginForm from '../../components/forms/login';
+import RegisterForm from '../../components/forms/register';
 import LogoutForm from '../../components/forms/logout';
 import Solves from '../../components/solves';
 import SolveApi from '../../components/apis/SolveApi';
@@ -22,6 +22,7 @@ function PlayPage() {
   const [solves, setSolves] = useState([]);
   const [localPush, setLocalPush] = useState(false);
   const [copied, setCopied] = useState(false);
+  const solvesRef = useRef();
 
   // retrieve puzzle data
   useEffect(() => {
@@ -33,8 +34,8 @@ function PlayPage() {
       } catch (error) {
         console.error('Error fetching puzzle:', error);
         if (error.response.status === 401) {
-          removeCookie("jwt")
-          removeCookie("username")
+          removeCookie("jwt");
+          removeCookie("username");
         }
       }
     };
@@ -50,7 +51,7 @@ function PlayPage() {
         setSolves(solveData);
       } catch (error) {
         setSolves([]);
-        console.error('Error fetching solves:', error)
+        console.error('Error fetching solves:', error);
       }
     };
 
@@ -74,43 +75,40 @@ function PlayPage() {
   const pushASolveLocally = (solveData) => {
     setLocalPush(true);
     const solveObject = {
-        player: { username: cookies.username },
-        puzzle: { date: new Date(), layout: [] }, 
-        success: solveData.success,
-        time: solveData.time,
+      player: { username: cookies.username },
+      puzzle: { date: new Date(), layout: [] },
+      success: solveData.success,
+      time: solveData.time,
     };
-    setSolves([...solves, solveObject])
-};
+    setSolves([...solves, solveObject]);
+  };
 
-const handleCopyToClipboard = () => {
-  const shareText = `Check out Minesweeper Puzzle #${puzzleId}!`;
-  navigator.clipboard.writeText(shareText)
-    .then(() => {
-      setCopied(true);
-    })
-    .catch((error) => {
-      console.error('Error copying text to clipboard:', error);
-    });
-};
-
-
-
+  const handleCopyToClipboard = () => {
+    const solvesText = solvesRef.current.getSolvesText();
+    navigator.clipboard.writeText(solvesText)
+      .then(() => {
+        setCopied(true);
+      })
+      .catch((error) => {
+        console.error('Error copying text to clipboard:', error);
+      });
+  };
 
   return (
     <>
-    <div className='page'>
-      <h1>Minesweeper Puzzle #{puzzleId}</h1>
-      {<Solves solves={solves}/>}
-      {puzzle && (localPush || !completedToday()) && <Board layout={puzzle} puzzleId={puzzleId} pushASolveLocally={pushASolveLocally}/>}
-      {puzzle && completedToday() && 
-        <>
-          <p>⛳ Puzzle #{puzzleId} completed! ⛳</p>
-          <button onClick={handleCopyToClipboard}>Share?</button>
-          {copied && <p>Copied to clipboard</p>}
-        </>}
-      <br></br>
-      <Navbar/>
-    </div>
+      <div className='page'>
+        <h1>Minesweeper Puzzle #{puzzleId}</h1>
+        <Solves solves={solves} ref={solvesRef} />
+        {puzzle && (localPush || !completedToday()) && <Board layout={puzzle} puzzleId={puzzleId} pushASolveLocally={pushASolveLocally} />}
+        {puzzle && completedToday() &&
+          <>
+            <p>⛳ Puzzle #{puzzleId} completed! ⛳</p>
+            <button onClick={handleCopyToClipboard}>Share?</button>
+            {copied && <p>Copied to clipboard</p>}
+          </>}
+        <br></br>
+        <Navbar />
+      </div>
     </>
   );
 }
