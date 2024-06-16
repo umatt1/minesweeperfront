@@ -106,8 +106,8 @@ function HomePage() {
   return (
     <>
       <div className='page'>
-        <h1>Sweeple 💣</h1>
-        <h2>Solve daily minesweeper #{puzzleId}</h2>
+        <h1 className='sweeple'>Sweeple 💣</h1>
+        <h3 className='sweeple'>Solve daily minesweeper #{puzzleId}</h3>
         <div className="buttonsDiv">
           {/* buttons for not logged in */}
           {
