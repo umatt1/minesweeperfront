@@ -44,7 +44,8 @@ const Board = ({ layout, puzzleId, pushASolveLocally }) => {
         username: cookies.username,
         puzzleId: puzzleId,
         time: (end-startTime)/1000,
-        success: false
+        success: false,
+        jwt: cookies.jwt
       }, cookies.jwt);
       pushASolveLocally({
         success: false,
@@ -60,7 +61,8 @@ const Board = ({ layout, puzzleId, pushASolveLocally }) => {
         username: cookies.username,
         puzzleId: puzzleId,
         time: (end-startTime)/1000,
-        success: true
+        success: true,
+        jwt: cookies.jwt
       }, cookies.jwt);
       pushASolveLocally({
         success: true,
