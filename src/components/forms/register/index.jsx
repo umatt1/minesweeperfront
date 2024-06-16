@@ -10,6 +10,7 @@ const RegisterForm = ({}) => {
     const [formData, setFormData] = useState({
         username: '',
         password: '',
+        confirmPassword: ''
     });
     const [message, setMessage] = useState("")
     const [cookies, setCookie, removeCookie] = useCookies(['jwt', "username"]);
@@ -24,6 +25,11 @@ const RegisterForm = ({}) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (formData.password !== formData.confirmPassword) {
+            setMessage("Passwords not matching");
+            return;
+        }
 
         try {
             const response = await api.register(formData);
@@ -48,7 +54,7 @@ const RegisterForm = ({}) => {
     };
     
     return (<>
-        {!cookies.jwt && <form onSubmit={handleSubmit}>
+        {!cookies.jwt && <form onSubmit={handleSubmit} className='registerForm'>
             <h3>Register</h3>
             <label>
                 Username:
@@ -70,6 +76,16 @@ const RegisterForm = ({}) => {
                 />
             </label>
             <br />
+            <label>
+                Retype password:
+                <input
+                    type="password"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                />
+            </label>
+            <br></br>
             <button type="submit">Register</button>
             {message != "" && <p>{message}</p>}
         </form>}

@@ -4,9 +4,6 @@ import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
-import MinesweeperPage from './pages/MinesweeperPage';
-import UserPage from './pages/UserPage';
-import AboutPage from './pages/AboutPage';
 import HomePage from './pages/HomePage';
 import PlayPage from './pages/PlayPage'
 

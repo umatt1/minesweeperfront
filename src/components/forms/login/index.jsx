@@ -68,7 +68,7 @@ const LoginForm = ({}) => {
     };
     
     return (<>
-        {!cookies.jwt && <form onSubmit={handleSubmit}>
+        {!cookies.jwt && <form onSubmit={handleSubmit} className='loginForm'>
             <h3>Login</h3>
             <label>
                 Username:

@@ -107,7 +107,7 @@ function HomePage() {
     <>
       <div className='page'>
         <h1>Sweeple 💣</h1>
-        <h2>Solve the daily minesweeper</h2>
+        <h2>Solve daily minesweeper #{puzzleId}</h2>
         <div className="buttonsDiv">
           {/* buttons for not logged in */}
           {
@@ -131,11 +131,7 @@ function HomePage() {
           <LoginForm/>}
         {register &&
           <RegisterForm/>}
-      </div>}
-
-        <div>
-          <p>Puzzle #{puzzleId}</p>
-        </div>
+        </div>}
       </div>
     </>
   );
