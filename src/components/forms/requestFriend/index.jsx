@@ -46,8 +46,9 @@ const FriendRequestForm = ({}) => {
     
     return (<>
         <form onSubmit={handleSubmit} className='requestFriendForm'>
+            <h3>Request friend</h3>
             <label>
-                Request:
+                Username:
                 <input
                     type="password"
                     name="confirmPassword"
