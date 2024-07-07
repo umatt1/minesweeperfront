@@ -30,18 +30,6 @@ const LoginForm = ({}) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // TODO: Send login request to the Spring Boot backend
-        // Use formData.username and formData.password
-
-        // Example using fetch:
-        // const response = await fetch('/api/auth/login', {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify(formData),
-        // });
-
         const response = await api.login(formData);
 
         if (response.jwt) {
@@ -53,18 +41,6 @@ const LoginForm = ({}) => {
             setMessage("Login failed!")
         }
 
-        //const response = await PlayerApi
-
-        // TODO: Handle response, store token, and navigate to the next page
-        // Example:
-        // if (response.ok) {
-        //     const data = await response.json();
-        //     // Store token in a secure way (localStorage, cookies, etc.)
-        //     // Redirect to the next page
-        //     history.push('/dashboard');
-        // } else {
-        //     // Handle login failure
-        // }
     };
     
     return (<>

@@ -1,54 +1,25 @@
-import axios from 'axios';
+import Api from "./Api";
 
-const apiUrl = import.meta.env.VITE_BACKEND_URL;
-
-// TODO: Destroy this whole thing
-class PlayerApi {
-  constructor() {
-    this.instance = axios.create({
-      baseURL: apiUrl,
-      // timeout: 10000,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-  }
-
-  async get(endpoint) {
-    try {
-      const response = await this.instance.get(endpoint);
-      return response.data;
-    } catch (error) {
-      throw error;
+class PlayerApi extends Api {
+    constructor() {
+        super();
     }
-  }
 
-  async post(endpoint, data) {
-    try {
-      const response = await this.instance.post(endpoint, data);
-      return response.data;
-    } catch (error) {
-      throw error;
+    async requestFriend(formData) {
+      const response = await this.post("/")
     }
-  }
+    
+    // async login(formData) {
+    //     const response = await this.post("/auth/login", formData)
+    //     return response;
+    // }
 
-  async put(endpoint, data) {
-    try {
-      const response = await this.instance.put(endpoint, data);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  }
+    // async register(formData) {
+    //     const response = await this.post("/auth/register", formData)
+    //     return response;
+    // }
 
-  async delete(endpoint) {
-    try {
-      const response = await this.instance.delete(endpoint);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  }
+
 }
 
 export default PlayerApi;

@@ -6,12 +6,12 @@ class AuthApi extends Api {
     }
     
     async login(formData) {
-        const response = await this.post("/auth/login", formData)
+        const response = await this.post("/api/v1/auth/login", formData)
         return response;
     }
 
     async register(formData) {
-        const response = await this.post("/auth/register", formData)
+        const response = await this.post("/api/v1/auth/register", formData)
         return response;
     }
 

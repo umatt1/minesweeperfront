@@ -16,13 +16,13 @@ class PuzzleApi extends Api {
     
       async getPuzzleOfTheDay(token) {
         try {
-          let puzzle = await this.get('/puzzle/getPuzzleByDate', token);
+          let puzzle = await this.get('/api/v1/puzzle/getPuzzleByDate', token);
           this.renderPuzzle(puzzle);
           return puzzle;
         } catch (error) {
           if (error.response.status === 404) {
             try { // 404 = may not exist. let's try creating it
-              let puzzle = await this.post('/puzzle/createPuzzleOfTheDay', null, token);
+              let puzzle = await this.post('/api/v1/puzzle/createPuzzleOfTheDay', null, token);
               this.renderPuzzle(puzzle);
               return puzzle;
             } catch (error) {

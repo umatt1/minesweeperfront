@@ -7,7 +7,7 @@ class SolveApi extends Api {
 
     async postSolve(solve, token) {
       try {
-        const response = await this.post("/solve", solve, token)
+        const response = await this.post("/api/v1/solve", solve, token)
         return response;
       } catch (error) {
         throw error;
@@ -16,7 +16,7 @@ class SolveApi extends Api {
 
     async getWeeksSolves(user, token) {
       try {
-        const response = await this.get("/solve/" + user, token);
+        const response = await this.get("/api/v1/solve/" + user, token);
         const toReturn = [];
         response.forEach(e => {
           // Ensure solve.puzzle.date is a valid Date object

@@ -11,6 +11,7 @@ import RegisterForm from '../../components/forms/register';
 import LogoutForm from '../../components/forms/logout';
 import Solves from '../../components/solves';
 import SolveApi from '../../components/apis/SolveApi';
+import SocialPopdown from '../../components/social/Popdown';
 
 // Ensure PuzzleApi and SolveApi are correctly imported and functional
 const api = new PuzzleApi();
@@ -24,6 +25,7 @@ function HomePage() {
   const [register, setRegister] = useState(false);
   const [solves, setSolves] = useState([]);
   const [localPush, setLocalPush] = useState(false);
+  const [displaySocial, setDisplaySocial] = useState(false);
   const navigate = useNavigate();
 
   // retrieve puzzle data
@@ -48,6 +50,7 @@ function HomePage() {
   const handleLogout = (e) => {
     removeCookie('jwt')
     removeCookie('username')
+    setDisplaySocial(false);
     setSignIn(false);
     setRegister(false);
 }
@@ -123,6 +126,10 @@ function HomePage() {
             cookies.jwt && cookies.username &&
             <button className="signOutButton" onClick={() => {handleLogout()}}>Sign out</button>
           }
+          {
+            cookies.jwt && cookies.username &&
+            <button className="socialButton" onClick={() => {setDisplaySocial(!displaySocial)}}>Social</button>
+          }
           <button className="playButton" onClick={() => { navigate("/play")}}>Play</button>
         </div>
 
@@ -132,6 +139,11 @@ function HomePage() {
         {register &&
           <RegisterForm/>}
         </div>}
+
+        {cookies.jwt && cookies.username && displaySocial && 
+          <SocialPopdown/>
+        }
+
       </div>
     </>
   );
