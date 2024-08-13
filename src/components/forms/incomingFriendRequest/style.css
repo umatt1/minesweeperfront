@@ -1,0 +1,13 @@
+.friendRequest {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+}
+
+.friendRequestButtons > * {
+    font-size: small !important;
+    padding: 1px !important;
+    height: 35px !important;
+    width: 70px !important;
+    margin: 5px !important;
+}
