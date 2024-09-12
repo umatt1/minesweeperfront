@@ -3,5 +3,3 @@ node_modules
 build
 npm-debug.log
 .env
-.env.local
-.env.example
