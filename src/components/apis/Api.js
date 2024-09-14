@@ -27,7 +27,7 @@ class Api {
 
   async get(endpoint, token = null) {
     try {
-      const response = await axios.get(apiUrl + endpoint, this.generateConfig(token));
+      const response = await axios.get(endpoint, this.generateConfig(token));
       return response.data;
     } catch (error) {
       console.error(error)
@@ -37,7 +37,7 @@ class Api {
 
   async post(endpoint, data, token = null) {
     try {
-      const response = await axios.post(apiUrl + endpoint, data, this.generateConfig(token));
+      const response = await axios.post(endpoint, data, this.generateConfig(token));
       return response.data;
     } catch (error) {
       throw error;
@@ -46,7 +46,7 @@ class Api {
 
   async put(endpoint, data, token = null) {
     try {
-      const response = await axios.put(apiUrl + endpoint, data, this.generateConfig(token));
+      const response = await axios.put(endpoint, data, this.generateConfig(token));
       return response.data;
     } catch (error) {
       throw error;
@@ -55,7 +55,7 @@ class Api {
 
   async delete(endpoint, token = null) {
     try {
-      const response = await axios.delete(apiUrl + endpoint, data, this.generateConfig(token));
+      const response = await axios.delete(endpoint, data, this.generateConfig(token));
       return response.data;
     } catch (error) {
       throw error;
