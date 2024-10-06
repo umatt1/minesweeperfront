@@ -15,7 +15,7 @@ const FriendRequests = () => {
     useEffect(() => {
         const fetchFriendRequests = async () => {
             try {
-                const response = await playerApi.getFriendRequests(cookies.jwt);
+                const response = await playerApi.getFriendRequests(cookies.jwt, cookies.jwt);
                 setFriendRequests(response.friendRequests || []);
             } catch (error) {
                 setErrorMessage("Failed to fetch friend requests.");

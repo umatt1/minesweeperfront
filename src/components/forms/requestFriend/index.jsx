@@ -7,10 +7,11 @@ const api = new PlayerApi();
 
 const FriendRequestForm = () => {
     const [formData, setFormData] = useState({
-        username: ''
+        requester: useCookies('username'),
+        requested: ''
     });
     const [message, setMessage] = useState("");
-    const [cookies] = useCookies(['jwt']); // Get the JWT token from cookies
+    const [cookies] = useCookies(['jwt, username']); // Get the JWT token from cookies
 
     const handleChange = (e) => {
         setFormData({
@@ -45,9 +46,14 @@ const FriendRequestForm = () => {
                 Friend's Username:
                 <input
                     type="text"
-                    name="username"
-                    value={formData.username}
+                    name="requested"
+                    value={formData.requested}
                     onChange={handleChange}
+                />
+                <input
+                    type="hidden"
+                    name="requester"
+                    value={cookies.username}
                 />
             </label>
             <button type="submit">Send Request</button>

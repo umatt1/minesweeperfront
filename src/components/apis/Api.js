@@ -37,6 +37,8 @@ class Api {
       const response = await this.instance.get(endpoint, this.generateConfig(token));
       return response.data;
     } catch (error) {
+      console.log(endpoint)
+      console.log(this.generateConfig(token))
       console.error(error);
       throw error;
     }
