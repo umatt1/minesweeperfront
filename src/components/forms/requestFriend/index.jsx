@@ -1,16 +1,16 @@
-import React, {useState} from 'react';
-import AuthApi from '../../apis/AuthApi';
+import React, { useState } from 'react';
+import PlayerApi from '../../apis/PlayerApi';
 import { useCookies } from 'react-cookie';
 import './style.css';
-import LogoutForm from '../logout';
 
-const api = new AuthApi();
+const api = new PlayerApi();
 
-const FriendRequestForm = ({}) => {
+const FriendRequestForm = () => {
     const [formData, setFormData] = useState({
         username: ''
     });
-    const [message, setMessage] = useState("")
+    const [message, setMessage] = useState("");
+    const [cookies] = useCookies(['jwt']); // Get the JWT token from cookies
 
     const handleChange = (e) => {
         setFormData({
@@ -23,43 +23,36 @@ const FriendRequestForm = ({}) => {
         e.preventDefault();
 
         try {
-            const response = await api.register(formData);
-            setMessage("Registration for " + response.username + " successful! Login with the new code");
+            // Making the friend request using the PlayerApi with JWT token from cookies
+            const response = await api.requestFriend(formData, cookies.jwt);
 
-            const loginResponse = await api.login(formData);
-
-            if (loginResponse.jwt) {
-                // store retrieved token in a cookie
-                setCookie("jwt", loginResponse.jwt)
-                setCookie("username", loginResponse.user.username)
-                // redirect to next page
+            if (response.success) {
+                setMessage(`Friend request to ${formData.username} sent successfully!`);
             } else {
-                setMessage("Login failed!")
+                setMessage("Friend request failed!");
             }
 
-
         } catch (error) {
-            setMessage("Registration failed!");
+            console.error(error);
+            setMessage("An error occurred while sending the friend request.");
         }
-
     };
-    
-    return (<>
+
+    return (
         <form onSubmit={handleSubmit} className='requestFriendForm'>
-            <h3>Request friend</h3>
+            <h3>Request Friend</h3>
             <label>
-                Username:
+                Friend's Username:
                 <input
-                    type="password"
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
+                    type="text"
+                    name="username"
+                    value={formData.username}
                     onChange={handleChange}
                 />
             </label>
-            <button type="submit">Submit</button>
-            {message != "" && <p>{message}</p>}
+            <button type="submit">Send Request</button>
+            {message && <p>{message}</p>}
         </form>
-        </>
     );
 }
 

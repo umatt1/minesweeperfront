@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const apiUrl = window.location.hostname;
+// const apiUrl = this.window.hostname
+const apiUrl = "http://localhost:80"
 
 class Api {
   constructor() {
@@ -8,36 +9,42 @@ class Api {
       baseURL: apiUrl,
       // timeout: 10000,
       headers: {
-        'Access-Control-Allow-Origin' : "*",
-        'Access-Control-Allow-Methods' :'GET,PUT,POST,DELETE,PATCH,OPTIONS',
+        'Accept': 'application/json',  // Accept header is enough for most cases
       },
     });
   }
 
-  generateConfig(token = null) {
+  generateConfig(token = null, data = null) {
+    const config = {
+      headers: {
+        'Accept': 'application/json',
+      },
+    };
+
     if (token != null) {
-      return {headers: {
-        "Authorization" : "Bearer " + token,
-        'Access-Control-Allow-Origin' : "*",
-        'Access-Control-Allow-Methods' :'GET,PUT,POST,DELETE,PATCH,OPTIONS',
-      }}
+      config.headers["Authorization"] = `Bearer ${token}`;
     }
-    return {}
+
+    if (data) {
+      config.data = data;
+    }
+
+    return config;
   }
 
   async get(endpoint, token = null) {
     try {
-      const response = await axios.get(endpoint, this.generateConfig(token));
+      const response = await this.instance.get(endpoint, this.generateConfig(token));
       return response.data;
     } catch (error) {
-      console.error(error)
+      console.error(error);
       throw error;
     }
   }
 
   async post(endpoint, data, token = null) {
     try {
-      const response = await axios.post(endpoint, data, this.generateConfig(token));
+      const response = await this.instance.post(endpoint, data, this.generateConfig(token));
       return response.data;
     } catch (error) {
       throw error;
@@ -46,7 +53,7 @@ class Api {
 
   async put(endpoint, data, token = null) {
     try {
-      const response = await axios.put(endpoint, data, this.generateConfig(token));
+      const response = await this.instance.put(endpoint, data, this.generateConfig(token));
       return response.data;
     } catch (error) {
       throw error;
@@ -55,7 +62,7 @@ class Api {
 
   async delete(endpoint, token = null) {
     try {
-      const response = await axios.delete(endpoint, data, this.generateConfig(token));
+      const response = await this.instance.delete(endpoint, this.generateConfig(token));
       return response.data;
     } catch (error) {
       throw error;
