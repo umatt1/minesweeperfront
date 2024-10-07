@@ -16,11 +16,14 @@ const FriendRequests = () => {
         const fetchFriendRequests = async () => {
             try {
                 const response = await playerApi.getFriendRequests(cookies.jwt, cookies.username);
-                setFriendRequests(response.friendRequests || []);
+                console.log("Friend Requests Response:", response);  // Log the response
+                setFriendRequests(response || []);
             } catch (error) {
                 setErrorMessage("Failed to fetch friend requests.");
             }
         };
+
+        fetchFriendRequests();
 
     }, [cookies.jwt]);
 
@@ -53,7 +56,7 @@ const FriendRequests = () => {
                 friendRequests.map((request) => (
                     <IncomingFriendRequest 
                         key={request.id} 
-                        requester={request.username} 
+                        requester={request.requester} 
                         onAccept={() => handleAccept(request.id)} 
                         onDeny={() => handleDeny(request.id)} 
                     />
