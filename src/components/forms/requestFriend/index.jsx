@@ -6,12 +6,12 @@ import './style.css';
 const api = new PlayerApi();
 
 const FriendRequestForm = () => {
+    const [cookies] = useCookies(['jwt, username']); // Get the JWT token from cookies
+    const [message, setMessage] = useState("");
     const [formData, setFormData] = useState({
-        requester: useCookies('username'),
+        requester: cookies.username,
         requested: ''
     });
-    const [message, setMessage] = useState("");
-    const [cookies] = useCookies(['jwt, username']); // Get the JWT token from cookies
 
     const handleChange = (e) => {
         setFormData({
@@ -25,6 +25,7 @@ const FriendRequestForm = () => {
 
         try {
             // Making the friend request using the PlayerApi with JWT token from cookies
+            console.log(formData)
             const response = await api.requestFriend(formData, cookies.jwt);
 
             if (response.success) {
