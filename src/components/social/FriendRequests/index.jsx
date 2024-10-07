@@ -7,7 +7,7 @@ import PlayerApi from "../../apis/PlayerApi";
 const playerApi = new PlayerApi();
 
 const FriendRequests = () => {
-    const [cookies] = useCookies(['jwt']);
+    const [cookies] = useCookies(['username','jwt']);
     const [friendRequests, setFriendRequests] = useState([]);
     const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
@@ -15,14 +15,13 @@ const FriendRequests = () => {
     useEffect(() => {
         const fetchFriendRequests = async () => {
             try {
-                const response = await playerApi.getFriendRequests(cookies.jwt, cookies.jwt);
+                const response = await playerApi.getFriendRequests(cookies.jwt, cookies.username);
                 setFriendRequests(response.friendRequests || []);
             } catch (error) {
                 setErrorMessage("Failed to fetch friend requests.");
             }
         };
 
-        fetchFriendRequests();
     }, [cookies.jwt]);
 
     const handleAccept = async (requestId) => {
