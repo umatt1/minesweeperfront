@@ -16,7 +16,6 @@ const FriendRequests = () => {
         const fetchFriendRequests = async () => {
             try {
                 const response = await playerApi.getFriendRequests(cookies.jwt, cookies.username);
-                console.log("Friend Requests Response:", response);  // Log the response
                 setFriendRequests(response || []);
             } catch (error) {
                 setErrorMessage("Failed to fetch friend requests.");
@@ -27,21 +26,21 @@ const FriendRequests = () => {
 
     }, [cookies.jwt]);
 
-    const handleAccept = async (requestId) => {
+    const handleAccept = async (requester, requested) => {
         try {
-            await playerApi.acceptFriendRequest(requestId, cookies.jwt);
+            await playerApi.acceptFriendRequest(requester, requested, cookies.jwt);
             setSuccessMessage("Friend request accepted!");
-            setFriendRequests((prevRequests) => prevRequests.filter(req => req.id !== requestId));  // Remove the accepted request from the list
+            setFriendRequests((prevRequests) => prevRequests.filter(req => req.requester !== requester && req.requested !== requested));  // Remove the accepted request from the list
         } catch (error) {
             setErrorMessage("Failed to accept the friend request.");
         }
     };
 
-    const handleDeny = async (requestId) => {
+    const handleDeny = async (requester, requested) => {
         try {
-            await playerApi.denyFriendRequest(requestId, cookies.jwt);
+            await playerApi.denyFriendRequest(requester, requested, cookies.jwt);
             setSuccessMessage("Friend request denied!");
-            setFriendRequests((prevRequests) => prevRequests.filter(req => req.id !== requestId));  // Remove the denied request from the list
+            setFriendRequests((prevRequests) => prevRequests.filter(req => req.requester !== requester && req.requested !== requested));  // Remove the denied request from the list
         } catch (error) {
             setErrorMessage("Failed to deny the friend request.");
         }
@@ -57,8 +56,8 @@ const FriendRequests = () => {
                     <IncomingFriendRequest 
                         key={request.id} 
                         requester={request.requester} 
-                        onAccept={() => handleAccept(request.id)} 
-                        onDeny={() => handleDeny(request.id)} 
+                        onAccept={() => handleAccept(request.requester, request.requested)} 
+                        onDeny={() => handleDeny(request.requester, request.requested)} 
                     />
                 ))
             ) : (

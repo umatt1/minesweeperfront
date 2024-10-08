@@ -16,13 +16,13 @@ class PlayerApi extends Api {
     }
 
     // Method to accept a friend request
-    async acceptFriendRequest(requestId, token) {
-        return await this.post(`/api/v1/user/request/${requestId}`, {}, token);
+    async acceptFriendRequest(requester, requested, token) {
+        return await this.put(`/api/v1/user/request/respond/accept`, {requester: requester, requested: requested}, token);
     }
 
     // Method to deny a friend request
-    async denyFriendRequest(requestId, token) {
-        return await this.post(`/api/v1/user/request/${requestId}`, {}, token);
+    async denyFriendRequest(requester, requested, token) {
+        return await this.put(`/api/v1/user/request/respond/decline`, {requester: requester, requested: requested}, token);
     }
 }
 
