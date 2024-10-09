@@ -24,6 +24,10 @@ class PlayerApi extends Api {
     async denyFriendRequest(requester, requested, token) {
         return await this.put(`/api/v1/user/request/respond/decline`, {requester: requester, requested: requested}, token);
     }
+
+    async getFriends(requester, token) {
+        return await this.get(`/api/v1/user/friends/${requester}`, token)
+    }
 }
 
 export default PlayerApi;
