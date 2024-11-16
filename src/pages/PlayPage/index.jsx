@@ -38,6 +38,9 @@ function PlayPage() {
   const fetchSolveData = async () => {
     try {
       const solveData = await solveApi.getWeeksSolves(cookies.username, cookies.jwt);
+      if (solveData.length > 0 && solveData.some(solve => solve.puzzle.id === puzzleId)) {
+        setPuzzleCompleted(true);
+      }
       setSolves(solveData);
     } catch (error) {
       console.error('Error fetching solves:', error);
@@ -45,7 +48,7 @@ function PlayPage() {
   };
   useEffect(() => {
     fetchSolveData();
-  }, [cookies.jwt]);
+  }, [puzzleId, cookies.jwt]);
 
   useEffect(() => {
     const fetchFriendsSolves = async () => {
@@ -100,6 +103,7 @@ function PlayPage() {
     <div className='page'>
       <h1>Minesweeper Puzzle #{puzzleId}</h1>
       <Solves solves={solves} ref={solvesRef}/>
+      {puzzleCompleted && <h2>You've already completed today's puzzle</h2>}
       {puzzle && <Board layout={puzzle} puzzleId={puzzleId} onSolveComplete={handleSolveCompleted} />}
       
       <button onClick={()=>{handleCopyToClipboard(); setCopied(true)}}>Share?</button>
