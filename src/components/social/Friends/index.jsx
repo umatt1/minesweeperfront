@@ -20,7 +20,7 @@ const Friends = () => {
             setErrorMessage("Failed to fetch friends.");
         }
     };
-    
+
     useEffect(() => {
 
         fetchFriends();
@@ -40,6 +40,7 @@ const Friends = () => {
         <div className="friendsList">
             <h2>Your Friends</h2>
             {errorMessage && <p className="error">{errorMessage}</p>}
+            {console.log("friends", friends)}
             {friends.length > 0 ? (
                 friends.map((friend) => (
                     <FriendCard 

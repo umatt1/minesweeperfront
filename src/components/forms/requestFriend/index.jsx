@@ -27,7 +27,7 @@ const FriendRequestForm = () => {
             // Making the friend request using the PlayerApi with JWT token from cookies
             const response = await api.requestFriend(formData, cookies.jwt);
             if (toString(response.requester) === toString(formData.requester) && toString(response.requested) === toString(formData.requested)) {
-                setMessage(`Friend request to ${formData.requester} sent successfully!`);
+                setMessage(`Friend request to ${formData.requested} sent successfully!`);
             } else {
                 setMessage("Friend request failed!");
             }
