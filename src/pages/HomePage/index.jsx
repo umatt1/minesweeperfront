@@ -111,6 +111,7 @@ function HomePage() {
       <div className='page'>
         <h1 className='sweeple'>Sweeple 💣</h1>
         <h3 className='sweeple'>Solve daily minesweeper #{puzzleId}</h3>
+        {cookies.jwt && cookies.username && <h2>Welcome, {cookies.username}</h2>}
         <div className="buttonsDiv">
           {/* buttons for not logged in */}
           {

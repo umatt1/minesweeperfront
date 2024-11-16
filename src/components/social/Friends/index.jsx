@@ -11,23 +11,26 @@ const Friends = () => {
     const [friends, setFriends] = useState([]);
     const [errorMessage, setErrorMessage] = useState("");
 
+
+    const fetchFriends = async () => {
+        try {
+            const response = await playerApi.getFriends(cookies.username, cookies.jwt);
+            setFriends(response || []);
+        } catch (error) {
+            setErrorMessage("Failed to fetch friends.");
+        }
+    };
+    
     useEffect(() => {
-        const fetchFriends = async () => {
-            try {
-                const response = await playerApi.getFriends(cookies.username, cookies.jwt);
-                setFriends(response || []);
-            } catch (error) {
-                setErrorMessage("Failed to fetch friends.");
-            }
-        };
 
         fetchFriends();
     }, [cookies.jwt, cookies.username]);
 
     const handleRemoveFriend = async (friendId) => {
+        console.log("deleteme", cookies['username'], friendId)
         try {
-            await playerApi.removeFriend(friendId, cookies.jwt);
-            setFriends((prevFriends) => prevFriends.filter(friend => friend.id !== friendId));  // Remove the friend from the list
+            await playerApi.removeFriend(cookies['username'], friendId, cookies.jwt);
+            setFriends((prevFriends) => prevFriends.filter(friend => friend.id !== friendId));
         } catch (error) {
             setErrorMessage("Failed to remove the friend.");
         }
@@ -42,7 +45,7 @@ const Friends = () => {
                     <FriendCard 
                         key={friend.id} 
                         friend={friend} 
-                        onRemoveFriend={handleRemoveFriend} 
+                        onRemoveFriend={(friendId) => {handleRemoveFriend(friendId); fetchFriends();}} 
                     />
                 ))
             ) : (

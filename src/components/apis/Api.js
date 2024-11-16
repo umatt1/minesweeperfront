@@ -14,6 +14,14 @@ class Api {
     });
   }
 
+  /**
+   * Generate a config object suitable for passing to Axios.
+   *
+   * @param {string} [token=null] - The JWT token to include in the request headers.
+   * @param {Object} [data=null] - The data to send in the request body.
+   *
+   * @returns {Object} The config object to pass to Axios.
+   */
   generateConfig(token = null, data = null) {
     const config = {
       headers: {
@@ -32,6 +40,13 @@ class Api {
     return config;
   }
 
+  /**
+   * Performs a GET request to the specified endpoint with the given token.
+   * @param {string} endpoint The endpoint to send the request to.
+   * @param {string} [token=null] The JWT token to include in the request headers.
+   * @returns {Promise<Object>} The response data from the server.
+   * @throws {Error} If there is an error with the request.
+   */
   async get(endpoint, token = null) {
     try {
       const response = await this.instance.get(endpoint, this.generateConfig(token));
@@ -42,6 +57,14 @@ class Api {
     }
   }
 
+  /**
+   * Performs a POST request to the specified endpoint with the given data and token.
+   * @param {string} endpoint The endpoint to send the request to.
+   * @param {Object} data The data to send in the request body.
+   * @param {string} [token=null] The JWT token to include in the request headers.
+   * @returns {Promise<Object>} The response data from the server.
+   * @throws {Error} If there is an error with the request.
+   */
   async post(endpoint, data, token = null) {
     try {
       const response = await this.instance.post(endpoint, data, this.generateConfig(token));
@@ -51,6 +74,14 @@ class Api {
     }
   }
 
+  /**
+   * Performs a PUT request to the specified endpoint with the given data and token.
+   * @param {string} endpoint The endpoint to send the request to.
+   * @param {Object} data The data to send in the request body.
+   * @param {string} [token=null] The JWT token to include in the request headers.
+   * @returns {Promise<Object>} The response data from the server.
+   * @throws {Error} If there is an error with the request.
+   */
   async put(endpoint, data, token = null) {
     try {
       const response = await this.instance.put(endpoint, data, this.generateConfig(token));
@@ -60,6 +91,13 @@ class Api {
     }
   }
 
+  /**
+   * Performs a DELETE request to the specified endpoint with the given token.
+   * @param {string} endpoint The endpoint to send the request to.
+   * @param {string} [token=null] The JWT token to include in the request headers.
+   * @returns {Promise<Object>} The response data from the server.
+   * @throws {Error} If there is an error with the request.
+   */
   async delete(endpoint, token = null) {
     try {
       const response = await this.instance.delete(endpoint, this.generateConfig(token));

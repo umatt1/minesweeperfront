@@ -28,6 +28,10 @@ class PlayerApi extends Api {
     async getFriends(requester, token) {
         return await this.get(`/api/v1/user/friends/${requester}`, token)
     }
+
+    async removeFriend(userId, friendId, token) {
+        return await this.delete(`/api/v1/user/friends/${userId}/${friendId}`, token);
+    }
 }
 
 export default PlayerApi;
