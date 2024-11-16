@@ -82,19 +82,16 @@ function PlayPage() {
       <Solves solves={solves} ref={solvesRef}/>
       {puzzle && <Board layout={puzzle} puzzleId={puzzleId} onSolveComplete={fetchSolveData} />}
       
-
       <button onClick={()=>{handleCopyToClipboard(); setCopied(true)}}>Share?</button>
       {copied && <p>Copied to clipboard</p>}
-
-
-
 
       <h2>Friends' Solves:</h2>
       <ul>
         {friendsSolves.map((solve, index) => (
-          <li key={index}>{solve.username} - {solve.time}</li>
+          <li key={index}>{solve.player.username} - {solve.time} - {solve.success ? "🟢" : "🔴"}</li>
         ))}
       </ul>
+      
     </div>
   );
 }
