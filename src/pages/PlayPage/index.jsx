@@ -18,6 +18,8 @@ function PlayPage() {
   const [friendsSolves, setFriendsSolves] = useState([]);
   const solvesRef = useRef();
   const [copied, setCopied] = useState(false);
+  const [puzzleCompleted, setPuzzleCompleted] = useState(false);
+
 
   useEffect(() => {
     const fetchPuzzleData = async () => {
@@ -76,21 +78,43 @@ function PlayPage() {
       });
   };
 
+  const handleSolveCompleted = async (solveData) => {
+    try {
+      const solveObject = {
+        player: { username: cookies.username },
+        puzzle: { date: new Date(), layout: [] },
+        success: solveData.success,
+        time: solveData.time,
+      };
+      await solveApi.postSolve(solveObject, cookies.jwt);
+      setSolves([...solves, solveObject]);
+      setPuzzleCompleted(true);
+      const friendsSolvesData = await solveApi.getFriendsSolves(cookies.username, cookies.jwt, puzzleId);
+      setFriendsSolves(friendsSolvesData);
+    } catch (error) {
+      console.error('Error posting solve:', error);
+    }
+  };
+
   return (
     <div className='page'>
       <h1>Minesweeper Puzzle #{puzzleId}</h1>
       <Solves solves={solves} ref={solvesRef}/>
-      {puzzle && <Board layout={puzzle} puzzleId={puzzleId} onSolveComplete={fetchSolveData} />}
+      {puzzle && <Board layout={puzzle} puzzleId={puzzleId} onSolveComplete={handleSolveCompleted} />}
       
       <button onClick={()=>{handleCopyToClipboard(); setCopied(true)}}>Share?</button>
       {copied && <p>Copied to clipboard</p>}
 
-      <h2>Friends' Solves:</h2>
-      <ul>
-        {friendsSolves.map((solve, index) => (
-          <li key={index}>{solve.player.username} - {solve.time} - {solve.success ? "🟢" : "🔴"}</li>
-        ))}
-      </ul>
+      {puzzleCompleted && (
+        <>
+          <h2>Friends' Solves:</h2>
+          <ul>
+            {friendsSolves.map((solve, index) => (
+              <li key={index}>{solve.player.username} - {solve.time} - {solve.success ? '🟢' : '🔴'}</li>
+            ))}
+          </ul>
+        </>
+      )}
       
     </div>
   );
