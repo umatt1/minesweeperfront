@@ -26,7 +26,6 @@ class PlayerApi extends Api {
     }
 
     async getFriends(requester, token) {
-        console.log(requester);
         return await this.get(`/api/v1/user/friends/${requester}`, token)
     }
 

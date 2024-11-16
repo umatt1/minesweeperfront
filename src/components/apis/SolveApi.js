@@ -34,6 +34,15 @@ class SolveApi extends Api {
         throw error;
       }
     }
+
+    async getFriendsSolves(user, token, puzzleId) {
+      try {
+        const response = await this.get("/api/v1/solve/" + user + "/" + puzzleId, token);
+        return response;
+      } catch (error) {
+        throw error;
+      }
+    }
     
 
 

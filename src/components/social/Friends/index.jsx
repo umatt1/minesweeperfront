@@ -27,7 +27,6 @@ const Friends = () => {
     }, [cookies.jwt, cookies.username]);
 
     const handleRemoveFriend = async (friendId) => {
-        console.log("deleteme", cookies['username'], friendId)
         try {
             await playerApi.removeFriend(cookies['username'], friendId, cookies.jwt);
             setFriends((prevFriends) => prevFriends.filter(friend => friend.id !== friendId));
@@ -40,7 +39,6 @@ const Friends = () => {
         <div className="friendsList">
             <h2>Your Friends</h2>
             {errorMessage && <p className="error">{errorMessage}</p>}
-            {console.log("friends", friends)}
             {friends.length > 0 ? (
                 friends.map((friend) => (
                     <FriendCard 

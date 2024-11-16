@@ -6,7 +6,7 @@ import { useCookies } from 'react-cookie';
 
 const api = new SolveApi();
 
-const Board = ({ layout, puzzleId, pushASolveLocally }) => {
+const Board = ({ layout, puzzleId, onSolveComplete }) => {
   const [revealedCells, setRevealedCells] = useState([]);
   const [flaggedCells, setFlaggedCells] = useState([]);
   const [gameState, setGameState] = useState('not started');
@@ -47,7 +47,7 @@ const Board = ({ layout, puzzleId, pushASolveLocally }) => {
         success: false,
         jwt: cookies.jwt
       }, cookies.jwt);
-      pushASolveLocally({
+      onSolveComplete({
         success: false,
         time: (end-startTime)/1000
       });
@@ -64,7 +64,7 @@ const Board = ({ layout, puzzleId, pushASolveLocally }) => {
         success: true,
         jwt: cookies.jwt
       }, cookies.jwt);
-      pushASolveLocally({
+      onSolveComplete({
         success: true,
         time: (end-startTime)/1000
       });
