@@ -6,7 +6,7 @@ import { useCookies } from 'react-cookie';
 
 const api = new SolveApi();
 
-const Board = ({ layout, puzzleId, onSolveComplete }) => {
+const Board = ({ layout, puzzleId, onSolveComplete, mines }) => {
   const [revealedCells, setRevealedCells] = useState([]);
   const [flaggedCells, setFlaggedCells] = useState([]);
   const [gameState, setGameState] = useState('not started');
@@ -187,6 +187,11 @@ const Board = ({ layout, puzzleId, onSolveComplete }) => {
   return (
     <Container fluid className="p-3">
       <div className="d-flex flex-column align-items-center">
+        <div className="mb-3">
+          <Alert variant="info" className="text-center py-2">
+            Mines Left: {mines - flaggedCells.length}
+          </Alert>
+        </div>
         <div style={{ maxWidth: '600px' }}>
           {renderBoard(gameState === 'not started' || gameState === 'in progress')}
         </div>

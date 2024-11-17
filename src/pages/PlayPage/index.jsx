@@ -13,6 +13,7 @@ const solveApi = new SolveApi();
 function PlayPage() {
   const [puzzleId, setPuzzleId] = useState(null);
   const [puzzle, setPuzzle] = useState(null);
+  const [puzzleMines, setPuzzleMines] = useState(null);
   const [cookies, setCookie, removeCookie] = useCookies(['jwt', "username"]);
   const [solves, setSolves] = useState([]);
   const [friendsSolves, setFriendsSolves] = useState([]);
@@ -27,6 +28,7 @@ function PlayPage() {
         const puzzleData = await api.getPuzzleOfTheDay(cookies.jwt);
         setPuzzle(puzzleData.layout);
         setPuzzleId(puzzleData.id);
+        setPuzzleMines(puzzleData.mines);
       } catch (error) {
         console.error('Error fetching puzzle:', error);
       }
@@ -104,7 +106,12 @@ function PlayPage() {
       <h1>Minesweeper Puzzle #{puzzleId}</h1>
       <Solves solves={solves} ref={solvesRef}/>
       {puzzleCompleted && <h2>You've already completed today's puzzle</h2>}
-      {puzzle && <Board layout={puzzle} puzzleId={puzzleId} onSolveComplete={handleSolveCompleted} />}
+      {puzzle && <Board 
+        layout={puzzle} 
+        puzzleId={puzzleId} 
+        onSolveComplete={handleSolveCompleted}
+        mines={puzzleMines}
+      />}
       
       <button onClick={()=>{handleCopyToClipboard(); setCopied(true)}}>Share?</button>
       {copied && <p>Copied to clipboard</p>}
