@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
-import './Cell.css';
+import { Button } from 'react-bootstrap';
 
 const Cell = ({ value, isRevealed, onClick, surrounding, isFlagged, onRightClick }) => {
   const [timer, setTimer] = useState(null);
 
   function handleContextMenu(event) {
-    event.preventDefault(); // Prevent the default context menu
+    event.preventDefault();
     onRightClick();
   }
 
   function handleMouseDown(event) {
     if (event.button === 0) {
-      // Left-click
       setTimer(setTimeout(() => {
         onRightClick();
       }, 150));
@@ -39,9 +38,8 @@ const Cell = ({ value, isRevealed, onClick, surrounding, isFlagged, onRightClick
   }
 
   function tileValue(isRevealed, surrounding, isFlagged) {
-    // revealed -> return bomb or the surrounding tiles
     if (isRevealed) {
-      return value === 1 ? '💣' : surrounding;
+      return value === 1 ? '💣' : surrounding || ' ';
     } else if (isFlagged) {
       return '🚩';
     } else {
@@ -49,9 +47,26 @@ const Cell = ({ value, isRevealed, onClick, surrounding, isFlagged, onRightClick
     }
   }
 
+  // Determine button variant based on state
+  const getVariant = () => {
+    if (isRevealed) {
+      if (value === 1) return 'danger';
+      return 'light';
+    }
+    return 'secondary';
+  };
+
   return (
-    <div
-      className={`cell ${isRevealed ? 'revealed' : 'clickable'}`}
+    <Button
+      variant={getVariant()}
+      className="cell p-2 m-0 d-flex align-items-center justify-content-center"
+      style={{ 
+        width: '40px', 
+        height: '40px',
+        fontSize: '1.2rem',
+        fontWeight: surrounding > 0 ? 'bold' : 'normal',
+        color: isRevealed && surrounding > 0 ? `var(--bs-${getNumberColor(surrounding)})` : 'inherit'
+      }}
       onClick={onClick}
       onContextMenu={handleContextMenu}
       onMouseDown={handleMouseDown}
@@ -61,8 +76,23 @@ const Cell = ({ value, isRevealed, onClick, surrounding, isFlagged, onRightClick
       onTouchEnd={handleTouchEnd}
     >
       {tileValue(isRevealed, surrounding, isFlagged)}
-    </div>
+    </Button>
   );
+};
+
+// Function to get color for numbers
+const getNumberColor = (num) => {
+  const colors = {
+    1: 'primary',   // blue
+    2: 'success',   // green
+    3: 'danger',    // red
+    4: 'info',      // light blue
+    5: 'warning',   // yellow
+    6: 'secondary', // gray
+    7: 'dark',      // dark gray
+    8: 'black'      // black
+  };
+  return colors[num] || 'dark';
 };
 
 export default Cell;

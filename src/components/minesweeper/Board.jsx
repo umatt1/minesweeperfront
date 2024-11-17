@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { Container, Row, Col, Alert } from 'react-bootstrap';
 import Cell from './Cell';
-import './Board.css'
 import SolveApi from '../apis/SolveApi';
 import { useCookies } from 'react-cookie';
 
@@ -76,15 +76,12 @@ const Board = ({ layout, puzzleId, onSolveComplete }) => {
   }, [revealedCells]);
 
   function revealCellFactory(row, col) {
-    // return a function that will update this component's state
     return () => {
       revealChunk(row,col);
     };
   }
 
   function revealChunk(row, col) {
-    // perform the searching part of revealing a large chunk of cells
-    // checks
     if (revealedCells.includes(`${row}-${col}`) || row < 0 || col < 0 || row >= layout.length || col >= layout.at(0).length || flaggedCells.includes(`${row}-${col}`)) {
       return;
     }
@@ -96,7 +93,6 @@ const Board = ({ layout, puzzleId, onSolveComplete }) => {
       const center = stack.pop();
       for (let r = center.row-1; r < center.row+2; r++) {
         for (let c = center.col-1; c < center.col+2; c++) {
-          // reveal unrevealed surroundings
           if (touched.includes(`${r}-${c}`) || r < 0 || c < 0 || r >= layout.length || c >= layout.at(0).length || flaggedCells.includes(`${r}-${c}`)) {
             continue;
           }
@@ -104,7 +100,6 @@ const Board = ({ layout, puzzleId, onSolveComplete }) => {
             continue;
           }
           touched.push(`${r}-${c}`)
-          // add 0's to the stack
           if (surroundingMines(r,c,layout) === 0) {
             stack.push({row: r, col: c});
           }
@@ -116,11 +111,9 @@ const Board = ({ layout, puzzleId, onSolveComplete }) => {
 
   function flagCellFactory(row, col, isFlagged) {
     return () => {
-      // flag if unflagged
       if (!isFlagged) {
         setFlaggedCells([...flaggedCells, `${row}-${col}`])
       } else {
-        // unflag if flagged
         const toRemove = flaggedCells.indexOf(`${row}-${col}`)
         setFlaggedCells([...flaggedCells.slice(0, toRemove), ...flaggedCells.slice(toRemove+1, flaggedCells.length)])
       }
@@ -128,7 +121,6 @@ const Board = ({ layout, puzzleId, onSolveComplete }) => {
   }
 
   const surroundingMines = (row, col, layout) => {
-    // return number of surrounding mines
     let count = 0;
     for (let i = row-1; i < row+2; i += 1) {
         for (let j = col-1; j < col+2; j += 1) {
@@ -144,10 +136,9 @@ const Board = ({ layout, puzzleId, onSolveComplete }) => {
   }
 
   const renderCell = (value, row, col, layout, clickable=true) => {
-    // create a cell
     const isRevealed = revealedCells.includes(`${row}-${col}`) || ["win", "lose"].includes(gameState);
     const isFlagged = flaggedCells.includes(`${row}-${col}`)
-    const revealer = clickable ? revealCellFactory(row, col) : (row, col) => {};
+    const revealer = clickable ? revealCellFactory(row, col) : () => {};
     const flagger = flagCellFactory(row, col, isFlagged);
     return (
       <Cell
@@ -164,28 +155,45 @@ const Board = ({ layout, puzzleId, onSolveComplete }) => {
 
   const renderBoard = (clickable=true) => {
     return layout.map((row, rowIndex) => (
-      <div key={rowIndex} className="board-row">
-        {row.map((cell, columnIndex) => renderCell(cell, rowIndex, columnIndex, layout, clickable))}
-      </div>
+      <Row key={rowIndex} className="g-0 justify-content-center">
+        {row.map((cell, columnIndex) => (
+          <Col key={`${rowIndex}-${columnIndex}`} className="p-0">
+            {renderCell(cell, rowIndex, columnIndex, layout, clickable)}
+          </Col>
+        ))}
+      </Row>
     ))
   }
 
+  const getGameStateAlert = () => {
+    if (gameState === 'win') {
+      return (
+        <Alert variant="success" className="mt-3 text-center">
+          <Alert.Heading>You Won! 🎉</Alert.Heading>
+          <p className="mb-0">Time: {((endTime-startTime)/ 1000).toFixed(2)} seconds</p>
+        </Alert>
+      );
+    } else if (gameState === 'lose') {
+      return (
+        <Alert variant="danger" className="mt-3 text-center">
+          <Alert.Heading>Game Over 💥</Alert.Heading>
+          <p className="mb-0">Time: {((endTime-startTime)/ 1000).toFixed(2)} seconds</p>
+        </Alert>
+      );
+    }
+    return null;
+  };
+
   return (
-    <div className="minesweeper-board">
-      {(gameState === 'not started' || gameState === 'in progress') && <div>
-          {renderBoard(true)}
-        </div>}
-      {(gameState === 'win') && <div>
-          {renderBoard(false)}
-          <h3>Won in {((endTime-startTime)/ 1000).toFixed(2)} seconds</h3>
+    <Container fluid className="p-3">
+      <div className="d-flex flex-column align-items-center">
+        <div style={{ maxWidth: '600px' }}>
+          {renderBoard(gameState === 'not started' || gameState === 'in progress')}
         </div>
-      }
-      {(gameState === 'lose') && <div>
-          {renderBoard(false)}
-          <h3>Lost in {((endTime-startTime)/ 1000).toFixed(2)} seconds</h3>
-        </div>
-      }
-    </div>
+        {getGameStateAlert()}
+      </div>
+    </Container>
   );
 };
+
 export default Board;

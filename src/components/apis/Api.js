@@ -1,16 +1,19 @@
 import axios from 'axios';
 
-//const apiUrl = this.window.hostname
-const apiUrl = "http://localhost:80"
+const getApiUrl = () => {
+  if (import.meta.env.VITE_API_URL === 'window.location.origin') {
+    return window.location.origin;
+  }
+  return import.meta.env.VITE_API_URL;
+};
 
 class Api {
   constructor() {
     this.instance = axios.create({
-      baseURL: apiUrl,
-      // timeout: 10000,
+      baseURL: getApiUrl(),
       headers: {
-        'Accept': 'application/json',  // Accept header is enough for most cases
-      },
+        'Content-Type': 'application/json'
+      }
     });
   }
 

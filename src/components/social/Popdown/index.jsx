@@ -13,8 +13,6 @@ const SocialPopdown = ({}) => {
     return (
         <>
             <Friends/>
-            <FriendRequests/>
-            <FriendRequestForm/>
         </>
     );
 }

@@ -1,63 +1,107 @@
 import React, { useState } from 'react';
+import { Form, Button, Card, Alert } from 'react-bootstrap';
 import PlayerApi from '../../apis/PlayerApi';
 import { useCookies } from 'react-cookie';
-import './style.css';
 
 const api = new PlayerApi();
 
 const FriendRequestForm = () => {
-    const [cookies] = useCookies(['jwt, username']); // Get the JWT token from cookies
-    const [message, setMessage] = useState("");
+    const [cookies] = useCookies(['jwt, username']);
+    const [message, setMessage] = useState(null);
     const [formData, setFormData] = useState({
         requester: cookies.username,
         requested: ''
     });
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleChange = (e) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value,
         });
+        // Clear any previous messages when user starts typing
+        setMessage(null);
     }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
 
         try {
-            // Making the friend request using the PlayerApi with JWT token from cookies
             const response = await api.requestFriend(formData, cookies.jwt);
-            if (toString(response.requester) === toString(formData.requester) && toString(response.requested) === toString(formData.requested)) {
-                setMessage(`Friend request to ${formData.requested} sent successfully!`);
+            if (toString(response.requester) === toString(formData.requester) && 
+                toString(response.requested) === toString(formData.requested)) {
+                setMessage({
+                    type: 'success',
+                    text: `Friend request to ${formData.requested} sent successfully!`
+                });
+                // Clear the form
+                setFormData({
+                    ...formData,
+                    requested: ''
+                });
             } else {
-                setMessage("Friend request failed!");
+                setMessage({
+                    type: 'danger',
+                    text: 'Friend request failed!'
+                });
             }
-
         } catch (error) {
             console.error(error);
-            setMessage("An error occurred while sending the friend request.");
+            setMessage({
+                type: 'danger',
+                text: error.response?.data?.message || 'An error occurred while sending the friend request.'
+            });
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
-        <form onSubmit={handleSubmit} className='requestFriendForm'>
-            <h3>Request Friend</h3>
-            <label>
-                Friend's Username:
-                <input
-                    type="text"
-                    name="requested"
-                    value={formData.requested}
-                    onChange={handleChange}
-                />
-                <input
-                    type="hidden"
-                    name="requester"
-                    value={cookies.username}
-                />
-            </label>
-            <button type="submit">Send Request</button>
-            {message && <p>{message}</p>}
-        </form>
+        <Card className="shadow-sm">
+            <Card.Body>
+                <Card.Title className="text-center mb-4">Request Friend</Card.Title>
+                <Form onSubmit={handleSubmit}>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Friend's Username</Form.Label>
+                        <Form.Control
+                            type="text"
+                            name="requested"
+                            value={formData.requested}
+                            onChange={handleChange}
+                            placeholder="Enter username"
+                            disabled={isLoading}
+                        />
+                        <Form.Control
+                            type="hidden"
+                            name="requester"
+                            value={cookies.username}
+                        />
+                    </Form.Group>
+                    
+                    {message && (
+                        <Alert 
+                            variant={message.type}
+                            className="mb-3"
+                            dismissible
+                            onClose={() => setMessage(null)}
+                        >
+                            {message.text}
+                        </Alert>
+                    )}
+
+                    <div className="d-grid">
+                        <Button 
+                            variant="primary" 
+                            type="submit"
+                            disabled={isLoading || !formData.requested.trim()}
+                        >
+                            {isLoading ? 'Sending...' : 'Send Request'}
+                        </Button>
+                    </div>
+                </Form>
+            </Card.Body>
+        </Card>
     );
 }
 
