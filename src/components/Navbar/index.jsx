@@ -1,13 +1,9 @@
-import { Link } from "react-router-dom";
-import './style.css';
-import { useCookies } from "react-cookie";
 import { useNavigate } from 'react-router-dom';
-import React, { useState, useEffect } from 'react';
-
-import LoginForm from '../../components/forms/login';
-import RegisterForm from '../../components/forms/register';
-
-
+import React, { useState } from 'react';
+import { useCookies } from "react-cookie";
+import { Navbar as BootstrapNavbar, Nav, Button, Container } from 'react-bootstrap';
+import LoginForm from '../forms/login';
+import RegisterForm from '../forms/register';
 
 const Navbar = () => {
     const navigate = useNavigate();
@@ -18,14 +14,14 @@ const Navbar = () => {
     function toggleSignIn() {
         setRegister(false);
         setSignIn(!signIn);
-      }
+    }
     
-      function toggleRegister() {
+    function toggleRegister() {
         setSignIn(false);
         setRegister(!register);
-      }
+    }
 
-      const handleLogout = (e) => {
+    const handleLogout = () => {
         removeCookie('jwt')
         removeCookie('username')
         setSignIn(false);
@@ -34,32 +30,59 @@ const Navbar = () => {
 
     return (
         <>
-        <div className="buttonsDiv">
-          {/* buttons for not logged in */}
-          {
-            !cookies.jwt && !cookies.username &&
-            <button className="registerButton" onClick={() => {toggleRegister()}}>Register</button>
-          }
-          {
-            !cookies.jwt && !cookies.username &&
-            <button className="signInButton" onClick={() => toggleSignIn()}>Sign in</button>
-          }
-          {/* buttons for logged in */}
-          {
-            cookies.jwt && cookies.username &&
-            <button className="signOutButton" onClick={() => {handleLogout()}}>Sign out</button>
-          }
-          <button className="playButton" onClick={() => { navigate("/play")}}>Play</button>
-        </div>
+            <BootstrapNavbar bg="light" expand="lg" className="mb-3">
+                <Container>
+                    <BootstrapNavbar.Brand onClick={() => navigate("/")} style={{ cursor: 'pointer' }}>
+                        Minesweeper
+                    </BootstrapNavbar.Brand>
+                    <BootstrapNavbar.Toggle aria-controls="basic-navbar-nav" />
+                    <BootstrapNavbar.Collapse id="basic-navbar-nav">
+                        <Nav className="ms-auto">
+                            {!cookies.jwt && !cookies.username && (
+                                <>
+                                    <Button
+                                        variant="outline-primary"
+                                        className="me-2"
+                                        onClick={toggleRegister}
+                                    >
+                                        Register
+                                    </Button>
+                                    <Button
+                                        variant="outline-success"
+                                        className="me-2"
+                                        onClick={toggleSignIn}
+                                    >
+                                        Sign in
+                                    </Button>
+                                </>
+                            )}
+                            {cookies.jwt && cookies.username && (
+                                <Button
+                                    variant="outline-danger"
+                                    className="me-2"
+                                    onClick={handleLogout}
+                                >
+                                    Sign out
+                                </Button>
+                            )}
+                            <Button
+                                variant="primary"
+                                onClick={() => navigate("/play")}
+                            >
+                                Play
+                            </Button>
+                        </Nav>
+                    </BootstrapNavbar.Collapse>
+                </Container>
+            </BootstrapNavbar>
 
-        {!cookies.jwt && <div>
-        {signIn &&
-          <LoginForm/>}
-        {register &&
-          <RegisterForm/>}
-      </div>}
-</>
-
+            {!cookies.jwt && (
+                <Container>
+                    {signIn && <LoginForm />}
+                    {register && <RegisterForm />}
+                </Container>
+            )}
+        </>
     );
 }
 

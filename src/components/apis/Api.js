@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// const apiUrl = this.window.hostname
+//const apiUrl = this.window.hostname
 const apiUrl = "http://localhost:80"
 
 class Api {

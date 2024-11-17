@@ -1,6 +1,6 @@
 import IncomingFriendRequest from "../../forms/incomingFriendRequest";
 import React, { useState, useEffect } from "react";
-import "./style.css";
+import { Container, Card, Alert } from 'react-bootstrap';
 import { useCookies } from "react-cookie";
 import PlayerApi from "../../apis/PlayerApi";
 
@@ -17,22 +17,27 @@ const FriendRequests = () => {
             try {
                 const response = await playerApi.getFriendRequests(cookies.jwt, cookies.username);
                 setFriendRequests(response || []);
+                setErrorMessage("");
             } catch (error) {
                 setErrorMessage("Failed to fetch friend requests.");
+                setSuccessMessage("");
             }
         };
 
         fetchFriendRequests();
-
     }, [cookies.jwt]);
 
     const handleAccept = async (requester, requested) => {
         try {
             await playerApi.acceptFriendRequest(requester, requested, cookies.jwt);
             setSuccessMessage("Friend request accepted!");
-            setFriendRequests((prevRequests) => prevRequests.filter(req => req.requester !== requester && req.requested !== requested));  // Remove the accepted request from the list
+            setErrorMessage("");
+            setFriendRequests((prevRequests) => 
+                prevRequests.filter(req => req.requester !== requester && req.requested !== requested)
+            );
         } catch (error) {
             setErrorMessage("Failed to accept the friend request.");
+            setSuccessMessage("");
         }
     };
 
@@ -40,30 +45,51 @@ const FriendRequests = () => {
         try {
             await playerApi.denyFriendRequest(requester, requested, cookies.jwt);
             setSuccessMessage("Friend request denied!");
-            setFriendRequests((prevRequests) => prevRequests.filter(req => req.requester !== requester && req.requested !== requested));  // Remove the denied request from the list
+            setErrorMessage("");
+            setFriendRequests((prevRequests) => 
+                prevRequests.filter(req => req.requester !== requester && req.requested !== requested)
+            );
         } catch (error) {
             setErrorMessage("Failed to deny the friend request.");
+            setSuccessMessage("");
         }
     };
 
     return (
-        <div className="friendRequests">
-            <h2>Incoming Friend Requests</h2>
-            {errorMessage && <p className="error">{errorMessage}</p>}
-            {successMessage && <p className="success">{successMessage}</p>}
-            {friendRequests.length > 0 ? (
-                friendRequests.map((request) => (
-                    <IncomingFriendRequest 
-                        key={request.id} 
-                        requester={request.requester} 
-                        onAccept={() => handleAccept(request.requester, request.requested)} 
-                        onDeny={() => handleDeny(request.requester, request.requested)} 
-                    />
-                ))
-            ) : (
-                <p>No incoming friend requests.</p>
-            )}
-        </div>
+        <Container className="py-4">
+            <Card>
+                <Card.Header>
+                    <h4 className="mb-0">Incoming Friend Requests</h4>
+                </Card.Header>
+                <Card.Body>
+                    {errorMessage && (
+                        <Alert variant="danger" className="mb-3">
+                            {errorMessage}
+                        </Alert>
+                    )}
+                    {successMessage && (
+                        <Alert variant="success" className="mb-3">
+                            {successMessage}
+                        </Alert>
+                    )}
+                    
+                    {friendRequests.length > 0 ? (
+                        friendRequests.map((request) => (
+                            <IncomingFriendRequest 
+                                key={request.id} 
+                                requester={request.requester} 
+                                onAccept={() => handleAccept(request.requester, request.requested)} 
+                                onDeny={() => handleDeny(request.requester, request.requested)} 
+                            />
+                        ))
+                    ) : (
+                        <Alert variant="info">
+                            No incoming friend requests.
+                        </Alert>
+                    )}
+                </Card.Body>
+            </Card>
+        </Container>
     );
 }
 

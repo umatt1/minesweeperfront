@@ -1,27 +1,36 @@
 import React from "react";
+import { Button as BootstrapButton } from 'react-bootstrap';
 
-import "./style.css";
-
-const Button = props => {
-  const btnEnableDisable = !props.isDisabled ? "btn-enable" : "btn-disabled";
-
-  return (
-    <button
-      id={props.id}
-      className={`btn ${btnEnableDisable}`}
-      onClick={props.clickHandler}
-      type={props.type}
-      disabled={props.isDisabled}
-    >
-      {props.value}
-    </button>
-  );
+const Button = ({ 
+    id, 
+    isDisabled, 
+    clickHandler, 
+    type = "button", 
+    value,
+    variant = "primary",
+    size,
+    className = ""
+}) => {
+    return (
+        <BootstrapButton
+            id={id}
+            className={className}
+            onClick={clickHandler}
+            type={type}
+            disabled={isDisabled}
+            variant={variant}
+            size={size}
+        >
+            {value}
+        </BootstrapButton>
+    );
 };
 
 Button.defaultProps = {
-  type: "button",
-
-  disabled: false
+    type: "button",
+    disabled: false,
+    variant: "primary",
+    className: ""
 };
 
 export default Button;

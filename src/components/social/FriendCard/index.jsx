@@ -1,15 +1,28 @@
 import React from "react";
-import "./style.css";
+import { Card, Button, ButtonGroup } from 'react-bootstrap';
 
 const FriendCard = ({ friend, onRemoveFriend }) => {
     return (
-        <div className="friendCard">
-            <h4>{friend}</h4>
-            <div className="friendCardButtons">
-                <button onClick={() => onRemoveFriend(friend)}>Remove</button>
-                <button>View Profile</button>
-            </div>
-        </div>
+        <Card className="mb-3">
+            <Card.Body className="d-flex justify-content-between align-items-center">
+                <Card.Title className="mb-0">{friend}</Card.Title>
+                <ButtonGroup>
+                    <Button 
+                        variant="outline-danger" 
+                        size="sm"
+                        onClick={() => onRemoveFriend(friend)}
+                    >
+                        Remove
+                    </Button>
+                    <Button 
+                        variant="outline-primary" 
+                        size="sm"
+                    >
+                        View Profile
+                    </Button>
+                </ButtonGroup>
+            </Card.Body>
+        </Card>
     );
 }
 
