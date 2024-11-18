@@ -100,9 +100,52 @@ const Board = ({ layout, puzzleId, onSolveComplete, mines }) => {
     manageGameState()
   }, [revealedCells]);
 
+  function countSurroundingFlags(row, col) {
+    let count = 0;
+    for (let i = row-1; i < row+2; i++) {
+      for (let j = col-1; j < col+2; j++) {
+        if (i < 0 || j < 0 || i >= layout.length || j >= layout[0].length) {
+          continue;
+        }
+        if (flaggedCells.includes(`${i}-${j}`)) {
+          count++;
+        }
+      }
+    }
+    return count;
+  }
+
+  function handleChording(row, col) {
+    const mineCount = surroundingMines(row, col, layout);
+    const flagCount = countSurroundingFlags(row, col);
+    
+    // Only chord if the number of flags matches the number on the cell
+    if (mineCount === flagCount) {
+      // Reveal all non-flagged surrounding cells
+      for (let i = row-1; i < row+2; i++) {
+        for (let j = col-1; j < col+2; j++) {
+          if (i < 0 || j < 0 || i >= layout.length || j >= layout[0].length) {
+            continue;
+          }
+          if (!flaggedCells.includes(`${i}-${j}`)) {
+            revealChunk(i, j);
+          }
+        }
+      }
+    }
+  }
+
   function revealCellFactory(row, col) {
     return () => {
-      revealChunk(row,col);
+      // If the cell is already revealed and has a number, try chording
+      if (revealedCells.includes(`${row}-${col}`)) {
+        const mineCount = surroundingMines(row, col, layout);
+        if (mineCount > 0) {
+          handleChording(row, col);
+          return;
+        }
+      }
+      revealChunk(row, col);
     };
   }
 
