@@ -5,7 +5,8 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import HomePage from './pages/HomePage';
-import PlayPage from './pages/PlayPage'
+import PlayPage from './pages/PlayPage';
+import StatisticsPage from './pages/StatisticsPage';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const router = createBrowserRouter([
@@ -16,6 +17,10 @@ const router = createBrowserRouter([
   {
     path: "/play",
     element: <PlayPage/>
+  },
+  {
+    path: "/statistics",
+    element: <StatisticsPage/>
   }
 ])
 

@@ -13,6 +13,7 @@
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
+    align-items: center;
 }
 
 button {
@@ -21,4 +22,17 @@ button {
     margin: 10px;
     height: 50px;
     width: 100px;
+}
+
+.btn-stats {
+    font-size: small;
+    height: 30px;
+    width: auto;
+    padding: 0 10px;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.btn-stats:hover {
+    opacity: 1;
 }

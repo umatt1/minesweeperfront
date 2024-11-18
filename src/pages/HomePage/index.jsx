@@ -132,6 +132,7 @@ function HomePage() {
             <button className="socialButton" onClick={() => {setDisplaySocial(!displaySocial)}}>Social</button>
           }
           <button className="playButton" onClick={() => { navigate("/play")}}>Play</button>
+          <button className="btn btn-link btn-sm text-muted btn-stats" onClick={() => { navigate("/statistics")}}>Stats</button>
         </div>
 
         {!cookies.jwt && <div>
