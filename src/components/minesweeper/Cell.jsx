@@ -38,8 +38,10 @@ const Cell = ({ value, isRevealed, onClick, surrounding, isFlagged, onRightClick
   }
 
   function tileValue(isRevealed, surrounding, isFlagged) {
+    if (value === 2) return '✓';
     if (isRevealed) {
-      return value === 1 ? '💣' : surrounding || ' ';
+      if (value === 1) return '💣';
+      return surrounding || ' ';
     } else if (isFlagged) {
       return '🚩';
     } else {
@@ -49,6 +51,7 @@ const Cell = ({ value, isRevealed, onClick, surrounding, isFlagged, onRightClick
 
   // Determine button variant based on state
   const getVariant = () => {
+    if (value === 2) return 'success';
     if (isRevealed) {
       if (value === 1) return 'danger';
       return 'light';
@@ -65,7 +68,7 @@ const Cell = ({ value, isRevealed, onClick, surrounding, isFlagged, onRightClick
         height: '40px',
         fontSize: '1.2rem',
         fontWeight: surrounding > 0 ? 'bold' : 'normal',
-        color: isRevealed && surrounding > 0 ? `var(--bs-${getNumberColor(surrounding)})` : 'inherit'
+        color: isRevealed && value !== 2 && surrounding > 0 ? `var(--bs-${getNumberColor(surrounding)})` : 'inherit'
       }}
       onClick={onClick}
       onContextMenu={handleContextMenu}

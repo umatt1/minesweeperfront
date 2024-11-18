@@ -12,7 +12,32 @@ const Board = ({ layout, puzzleId, onSolveComplete, mines }) => {
   const [gameState, setGameState] = useState('not started');
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
+  const [safeStartSpot, setSafeStartSpot] = useState(null);
   const [cookies, setCookie, removeCookie] = useCookies(['jwt', "username"]);
+
+  // Find a safe starting spot when component mounts
+  useEffect(() => {
+    // Check if a value 2 exists
+    let has2 = false;
+    let safeTiles = [];
+    layout.forEach((row, rowIndex) => {
+      row.forEach((tile, colIndex) => {
+        if (tile === 2) has2 = true;
+        if (tile === 0 && surroundingMines(rowIndex, colIndex, layout) === 0) {
+          safeTiles.push([rowIndex, colIndex]);
+        }
+      });
+    });
+
+    // If no value 2 exists, randomly select a safe tile
+    if (!has2 && safeTiles.length > 0) {
+      const randomIndex = Math.floor(Math.random() * safeTiles.length);
+      setSafeStartSpot(safeTiles[randomIndex]);
+      console.log('Selected safe spot:', safeTiles[randomIndex]);
+    } else {
+      console.log('No safe spot needed:', has2 ? 'value 2 exists' : 'no safe tiles found');
+    }
+  }, [layout]);
 
   function manageGameState() {
     if (gameState === 'not started') {
@@ -25,7 +50,7 @@ const Board = ({ layout, puzzleId, onSolveComplete, mines }) => {
     let hitMine = false;
     layout.forEach(row => {
       row.forEach(tile => {
-        mineCount += tile;
+        if (tile === 1) mineCount += 1;
         squareCount += 1;
       });
     });
@@ -137,13 +162,22 @@ const Board = ({ layout, puzzleId, onSolveComplete, mines }) => {
 
   const renderCell = (value, row, col, layout, clickable=true) => {
     const isRevealed = revealedCells.includes(`${row}-${col}`) || ["win", "lose"].includes(gameState);
-    const isFlagged = flaggedCells.includes(`${row}-${col}`)
+    const isFlagged = flaggedCells.includes(`${row}-${col}`);
+    const isRandomSafeSpot = safeStartSpot && safeStartSpot[0] === row && safeStartSpot[1] === col;
+    
+    // Show value 2 for safe spots (either original or random) before revealing
+    // After revealing, treat them as value 0
+    const effectiveValue = isRevealed ? 
+      (value === 2 || (isRandomSafeSpot && value === 0) ? 0 : value) :
+      (isRandomSafeSpot ? 2 : value);
+    
     const revealer = clickable ? revealCellFactory(row, col) : () => {};
     const flagger = flagCellFactory(row, col, isFlagged);
+
     return (
       <Cell
         key={`${row}-${col}`}
-        value={value}
+        value={effectiveValue}
         isRevealed={isRevealed}
         onClick={revealer}
         surrounding={surroundingMines(row, col, layout)}
