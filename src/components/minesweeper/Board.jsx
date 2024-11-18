@@ -113,7 +113,9 @@ const Board = ({ layout, puzzleId, onSolveComplete, mines }) => {
     const touched = revealedCells.slice(0, revealedCells.length);
     touched.push(`${row}-${col}`)
     const stack = [];
-    if (layout[row][col] === 0 && surroundingMines(row, col, layout) === 0) {stack.push({row: row, col: col});}
+    if ((layout[row][col] === 0 || layout[row][col] === 2) && surroundingMines(row, col, layout) === 0) {
+      stack.push({row: row, col: col});
+    }
     while (stack.length > 0) {
       const center = stack.pop();
       for (let r = center.row-1; r < center.row+2; r++) {
