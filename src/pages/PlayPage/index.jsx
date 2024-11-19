@@ -6,6 +6,7 @@ import './style.css';
 import Navbar from '../../components/Navbar';
 import Solves from '../../components/solves';
 import SolveApi from '../../components/apis/SolveApi';
+import GameStatsPopup from '../../components/GameStatsPopup';
 
 const api = new PuzzleApi();
 const solveApi = new SolveApi();
@@ -20,6 +21,8 @@ function PlayPage() {
   const solvesRef = useRef();
   const [copied, setCopied] = useState(false);
   const [puzzleCompleted, setPuzzleCompleted] = useState(false);
+  const [showStats, setShowStats] = useState(false);
+  const [gameStats, setGameStats] = useState(null);
 
 
   useEffect(() => {
@@ -83,7 +86,7 @@ function PlayPage() {
       });
   };
 
-  const handleSolveCompleted = async (solveData) => {
+  const handleSolveComplete = async (solveData) => {
     try {
       const solveObject = {
         player: { username: cookies.username },
@@ -96,6 +99,10 @@ function PlayPage() {
       setPuzzleCompleted(true);
       const friendsSolvesData = await solveApi.getFriendsSolves(cookies.username, cookies.jwt, puzzleId);
       setFriendsSolves(friendsSolvesData);
+      
+      // Show statistics popup
+      setGameStats(solveData.stats);
+      setShowStats(true);
     } catch (error) {
       console.error('Error posting solve:', error);
     }
@@ -109,7 +116,7 @@ function PlayPage() {
       {puzzle && <Board 
         layout={puzzle} 
         puzzleId={puzzleId} 
-        onSolveComplete={handleSolveCompleted}
+        onSolveComplete={handleSolveComplete}
         mines={puzzleMines}
       />}
       
@@ -126,7 +133,12 @@ function PlayPage() {
           </ul>
         </>
       )}
-      
+
+      <GameStatsPopup
+        show={showStats}
+        onHide={() => setShowStats(false)}
+        stats={gameStats}
+      />
     </div>
   );
 }

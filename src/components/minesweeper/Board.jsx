@@ -13,6 +13,8 @@ const Board = ({ layout, puzzleId, onSolveComplete, mines }) => {
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
   const [safeStartSpot, setSafeStartSpot] = useState(null);
+  const [moveHistory, setMoveHistory] = useState([]);
+  const [moveStartTime, setMoveStartTime] = useState(null);
   const [cookies, setCookie, removeCookie] = useCookies(['jwt', "username"]);
 
   // Find a safe starting spot when component mounts
@@ -39,10 +41,48 @@ const Board = ({ layout, puzzleId, onSolveComplete, mines }) => {
     }
   }, [layout]);
 
+  function isUncertainMove(row, col) {
+    // If it's a safe start spot, it's certain
+    if (safeStartSpot && safeStartSpot[0] === row && safeStartSpot[1] === col) {
+      return false;
+    }
+
+    // Check all revealed neighbors
+    let hasRevealedNeighbor = false;
+    let mineCount = 0;
+    let flagCount = 0;
+    let unknownCount = 0;
+
+    for (let i = row-1; i < row+2; i++) {
+      for (let j = col-1; j < col+2; j++) {
+        if (i < 0 || j < 0 || i >= layout.length || j >= layout[0].length || (i === row && j === col)) {
+          continue;
+        }
+
+        const cellKey = `${i}-${j}`;
+        if (revealedCells.includes(cellKey)) {
+          hasRevealedNeighbor = true;
+          mineCount = surroundingMines(i, j, layout);
+        } else if (flaggedCells.includes(cellKey)) {
+          flagCount++;
+        } else {
+          unknownCount++;
+        }
+      }
+    }
+
+    // A move is uncertain if:
+    // 1. It has no revealed neighbors (blind guess)
+    // 2. Or the number of remaining unknown cells is greater than remaining mines
+    return !hasRevealedNeighbor || 
+           (hasRevealedNeighbor && mineCount > 0 && unknownCount > (mineCount - flagCount));
+  }
+
   function manageGameState() {
     if (gameState === 'not started') {
       setStartTime(new Date())
       setGameState('in progress')
+      setMoveStartTime(new Date())
     }
 
     let mineCount = 0;
@@ -61,38 +101,43 @@ const Board = ({ layout, puzzleId, onSolveComplete, mines }) => {
       }
     })
 
-    if (hitMine) {
+    if (hitMine || revealedCells.length === squareCount - mineCount) {
       const end = new Date();
-      setGameState('lose');
+      const success = !hitMine;
+      setGameState(success ? 'win' : 'lose');
       setEndTime(end);
+
+      // Calculate game statistics
+      const totalTime = (end - startTime) / 1000;
+      const uncertainMoves = moveHistory.filter(move => move.uncertain).length;
+      const averageTimePerMove = moveHistory.length > 0 
+        ? moveHistory.reduce((sum, move) => sum + move.time, 0) / moveHistory.length 
+        : 0;
+
+      const gameStats = {
+        totalMoves: moveHistory.length,
+        uncertainMoves,
+        averageTimePerMove,
+        totalTime,
+        success
+      };
+
       api.postSolve({
         username: cookies.username,
         puzzleId: puzzleId,
-        time: (end-startTime)/1000,
-        success: false,
+        time: totalTime,
+        success,
+        moves: moveHistory,
         jwt: cookies.jwt
       }, cookies.jwt);
+
       onSolveComplete({
-        success: false,
-        time: (end-startTime)/1000
+        success,
+        time: totalTime,
+        stats: gameStats
       });
-      return;
-    }
-    if (revealedCells.length === squareCount - mineCount) {
-      const end = new Date();
-      setGameState('win');
-      setEndTime(end);
-      api.postSolve({
-        username: cookies.username,
-        puzzleId: puzzleId,
-        time: (end-startTime)/1000,
-        success: true,
-        jwt: cookies.jwt
-      }, cookies.jwt);
-      onSolveComplete({
-        success: true,
-        time: (end-startTime)/1000
-      });
+
+      if (hitMine) return;
     }
   }
 
@@ -137,6 +182,11 @@ const Board = ({ layout, puzzleId, onSolveComplete, mines }) => {
 
   function revealCellFactory(row, col) {
     return () => {
+      // Start timing this move
+      if (!moveStartTime) {
+        setMoveStartTime(new Date());
+      }
+
       // If the cell is already revealed and has a number, try chording
       if (revealedCells.includes(`${row}-${col}`)) {
         const mineCount = surroundingMines(row, col, layout);
@@ -145,8 +195,49 @@ const Board = ({ layout, puzzleId, onSolveComplete, mines }) => {
           return;
         }
       }
+
+      const moveTime = new Date() - moveStartTime;
+      const uncertain = isUncertainMove(row, col);
+      
+      // Track the move
+      setMoveHistory(prev => [...prev, {
+        row,
+        col,
+        type: 'reveal',
+        uncertain,
+        time: moveTime / 1000 // Convert to seconds
+      }]);
+
+      // Reset move timer
+      setMoveStartTime(new Date());
+
       revealChunk(row, col);
     };
+  }
+
+  function flagCellFactory(row, col, isFlagged) {
+    return () => {
+      const moveTime = moveStartTime ? (new Date() - moveStartTime) / 1000 : 0;
+      
+      // Track the move
+      setMoveHistory(prev => [...prev, {
+        row,
+        col,
+        type: 'flag',
+        uncertain: false, // Flagging is always certain as it's player's choice
+        time: moveTime
+      }]);
+
+      // Reset move timer
+      setMoveStartTime(new Date());
+
+      if (!isFlagged) {
+        setFlaggedCells([...flaggedCells, `${row}-${col}`])
+      } else {
+        const toRemove = flaggedCells.indexOf(`${row}-${col}`)
+        setFlaggedCells([...flaggedCells.slice(0, toRemove), ...flaggedCells.slice(toRemove+1, flaggedCells.length)])
+      }
+    }
   }
 
   function revealChunk(row, col) {
@@ -177,17 +268,6 @@ const Board = ({ layout, puzzleId, onSolveComplete, mines }) => {
       }
     }
     setRevealedCells(touched);
-  }
-
-  function flagCellFactory(row, col, isFlagged) {
-    return () => {
-      if (!isFlagged) {
-        setFlaggedCells([...flaggedCells, `${row}-${col}`])
-      } else {
-        const toRemove = flaggedCells.indexOf(`${row}-${col}`)
-        setFlaggedCells([...flaggedCells.slice(0, toRemove), ...flaggedCells.slice(toRemove+1, flaggedCells.length)])
-      }
-    }
   }
 
   const surroundingMines = (row, col, layout) => {
