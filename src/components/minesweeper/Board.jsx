@@ -41,17 +41,15 @@ const Board = ({ layout, puzzleId, onSolveComplete, mines }) => {
     }
   }, [layout]);
 
-  function isUncertainMove(row, col) {
-    // If it's a safe start spot, it's certain
-    if (safeStartSpot && safeStartSpot[0] === row && safeStartSpot[1] === col) {
-      return false;
+  function getMoveType(row, col) {
+    // First move or safe start spot is always safe
+    if (moveHistory.length === 0 || (safeStartSpot && safeStartSpot[0] === row && safeStartSpot[1] === col)) {
+      return 'safe_start';
     }
 
-    // Check all revealed neighbors
+    // Check if adjacent to any revealed cells
     let hasRevealedNeighbor = false;
-    let mineCount = 0;
-    let flagCount = 0;
-    let unknownCount = 0;
+    let hasNumberedNeighbor = false;
 
     for (let i = row-1; i < row+2; i++) {
       for (let j = col-1; j < col+2; j++) {
@@ -62,20 +60,83 @@ const Board = ({ layout, puzzleId, onSolveComplete, mines }) => {
         const cellKey = `${i}-${j}`;
         if (revealedCells.includes(cellKey)) {
           hasRevealedNeighbor = true;
-          mineCount = surroundingMines(i, j, layout);
-        } else if (flaggedCells.includes(cellKey)) {
-          flagCount++;
-        } else {
-          unknownCount++;
+          // Check if the revealed neighbor has a number
+          const neighborMines = surroundingMines(i, j, layout);
+          if (neighborMines > 0) {
+            hasNumberedNeighbor = true;
+          }
         }
       }
     }
 
-    // A move is uncertain if:
-    // 1. It has no revealed neighbors (blind guess)
-    // 2. Or the number of remaining unknown cells is greater than remaining mines
-    return !hasRevealedNeighbor || 
-           (hasRevealedNeighbor && mineCount > 0 && unknownCount > (mineCount - flagCount));
+    if (!hasRevealedNeighbor) {
+      return 'blind_guess';
+    } else if (hasNumberedNeighbor) {
+      return 'adjacent_to_number';
+    } else {
+      return 'adjacent_to_empty';
+    }
+  }
+
+  function revealCellFactory(row, col) {
+    return () => {
+      // Start timing this move
+      if (!moveStartTime) {
+        setMoveStartTime(new Date());
+      }
+
+      // If the cell is already revealed and has a number, try chording
+      if (revealedCells.includes(`${row}-${col}`)) {
+        const mineCount = surroundingMines(row, col, layout);
+        if (mineCount > 0) {
+          handleChording(row, col);
+          return;
+        }
+      }
+
+      const moveTime = new Date() - moveStartTime;
+      const moveType = getMoveType(row, col);
+      
+      // Track the move
+      setMoveHistory(prev => [...prev, {
+        row,
+        col,
+        type: 'reveal',
+        moveType,
+        time: moveTime / 1000 // Convert to seconds
+      }]);
+
+      // Reset move timer
+      setMoveStartTime(new Date());
+
+      revealChunk(row, col);
+    };
+  }
+
+  function flagCellFactory(row, col, isFlagged) {
+    return () => {
+      const moveTime = moveStartTime ? (new Date() - moveStartTime) / 1000 : 0;
+      const moveType = getMoveType(row, col);
+      
+      // Track the move
+      setMoveHistory(prev => [...prev, {
+        row,
+        col,
+        type: 'flag',
+        moveType,
+        time: moveTime
+      }]);
+
+      // Reset move timer
+      setMoveStartTime(new Date());
+
+      if (!isFlagged) {
+        setFlaggedCells([...flaggedCells, `${row}-${col}`])
+      } else {
+        const toRemove = flaggedCells.indexOf(`${row}-${col}`)
+        setFlaggedCells([...flaggedCells.slice(0, toRemove), ...flaggedCells.slice(toRemove+1, flaggedCells.length)])
+      }
+    }
   }
 
   function manageGameState() {
@@ -109,15 +170,20 @@ const Board = ({ layout, puzzleId, onSolveComplete, mines }) => {
 
       // Calculate game statistics
       const totalTime = (end - startTime) / 1000;
-      const uncertainMoves = moveHistory.filter(move => move.uncertain).length;
-      const averageTimePerMove = moveHistory.length > 0 
-        ? moveHistory.reduce((sum, move) => sum + move.time, 0) / moveHistory.length 
-        : 0;
+      const moveTypes = moveHistory.reduce((acc, move) => {
+        acc[move.moveType] = (acc[move.moveType] || 0) + 1;
+        return acc;
+      }, {});
 
       const gameStats = {
         totalMoves: moveHistory.length,
-        uncertainMoves,
-        averageTimePerMove,
+        blindGuesses: moveTypes.blind_guess || 0,
+        adjacentToNumber: moveTypes.adjacent_to_number || 0,
+        adjacentToEmpty: moveTypes.adjacent_to_empty || 0,
+        safeStarts: moveTypes.safe_start || 0,
+        averageTimePerMove: moveHistory.length > 0 
+          ? moveHistory.reduce((sum, move) => sum + move.time, 0) / moveHistory.length 
+          : 0,
         totalTime,
         success
       };
@@ -176,66 +242,6 @@ const Board = ({ layout, puzzleId, onSolveComplete, mines }) => {
             revealChunk(i, j);
           }
         }
-      }
-    }
-  }
-
-  function revealCellFactory(row, col) {
-    return () => {
-      // Start timing this move
-      if (!moveStartTime) {
-        setMoveStartTime(new Date());
-      }
-
-      // If the cell is already revealed and has a number, try chording
-      if (revealedCells.includes(`${row}-${col}`)) {
-        const mineCount = surroundingMines(row, col, layout);
-        if (mineCount > 0) {
-          handleChording(row, col);
-          return;
-        }
-      }
-
-      const moveTime = new Date() - moveStartTime;
-      const uncertain = isUncertainMove(row, col);
-      
-      // Track the move
-      setMoveHistory(prev => [...prev, {
-        row,
-        col,
-        type: 'reveal',
-        uncertain,
-        time: moveTime / 1000 // Convert to seconds
-      }]);
-
-      // Reset move timer
-      setMoveStartTime(new Date());
-
-      revealChunk(row, col);
-    };
-  }
-
-  function flagCellFactory(row, col, isFlagged) {
-    return () => {
-      const moveTime = moveStartTime ? (new Date() - moveStartTime) / 1000 : 0;
-      
-      // Track the move
-      setMoveHistory(prev => [...prev, {
-        row,
-        col,
-        type: 'flag',
-        uncertain: false, // Flagging is always certain as it's player's choice
-        time: moveTime
-      }]);
-
-      // Reset move timer
-      setMoveStartTime(new Date());
-
-      if (!isFlagged) {
-        setFlaggedCells([...flaggedCells, `${row}-${col}`])
-      } else {
-        const toRemove = flaggedCells.indexOf(`${row}-${col}`)
-        setFlaggedCells([...flaggedCells.slice(0, toRemove), ...flaggedCells.slice(toRemove+1, flaggedCells.length)])
       }
     }
   }

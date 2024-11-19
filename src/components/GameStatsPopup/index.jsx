@@ -14,8 +14,10 @@ const GameStatsPopup = ({ show, onHide, stats }) => {
           <Card.Header>Move Analysis</Card.Header>
           <Card.Body>
             <p><strong>Total Moves:</strong> {stats.totalMoves}</p>
-            <p><strong>Uncertain Moves:</strong> {stats.uncertainMoves} ({((stats.uncertainMoves / stats.totalMoves) * 100).toFixed(1)}%)</p>
-            <p><strong>Average Time per Move:</strong> {stats.averageTimePerMove.toFixed(1)} seconds</p>
+            <p><strong>Blind Guesses:</strong> {stats.blindGuesses} ({((stats.blindGuesses / stats.totalMoves) * 100).toFixed(1)}%)</p>
+            <p><strong>Moves Near Numbers:</strong> {stats.adjacentToNumber} ({((stats.adjacentToNumber / stats.totalMoves) * 100).toFixed(1)}%)</p>
+            <p><strong>Moves Near Empty:</strong> {stats.adjacentToEmpty} ({((stats.adjacentToEmpty / stats.totalMoves) * 100).toFixed(1)}%)</p>
+            <p><strong>Safe Starts:</strong> {stats.safeStarts}</p>
           </Card.Body>
         </Card>
         
@@ -24,6 +26,7 @@ const GameStatsPopup = ({ show, onHide, stats }) => {
           <Card.Body>
             <p><strong>Result:</strong> {stats.success ? '🟢 Won' : '🔴 Lost'}</p>
             <p><strong>Total Time:</strong> {stats.totalTime.toFixed(1)} seconds</p>
+            <p><strong>Average Time per Move:</strong> {stats.averageTimePerMove.toFixed(1)} seconds</p>
           </Card.Body>
         </Card>
       </Modal.Body>
