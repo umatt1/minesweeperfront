@@ -79,6 +79,14 @@ const Board = ({ layout, puzzleId, onSolveComplete, mines }) => {
     }
   }
 
+  // Function to record a move's probability
+  const recordMove = (row, col) => {
+    const probability = calculateMineProbability(row, col);
+    console.log(`Move at ${row},${col} - Probability: ${probability}`);
+    setMoveStats(prev => [...prev, { probability }]);
+    return probability;
+  };
+
   function revealCellFactory(row, col) {
     return () => {
       // Start timing this move
@@ -97,12 +105,9 @@ const Board = ({ layout, puzzleId, onSolveComplete, mines }) => {
 
       const moveTime = new Date() - moveStartTime;
       const moveType = getMoveType(row, col);
+      const probability = recordMove(row, col);
       
       // Track the move
-      const probability = calculateMineProbability(row, col);
-      console.log(probability, "prob");
-      setMoveStats(prev => [...prev, { probability }]);
-      
       setMoveHistory(prev => [...prev, {
         row,
         col,
@@ -175,50 +180,20 @@ const Board = ({ layout, puzzleId, onSolveComplete, mines }) => {
     if (hitMine || revealedCells.length === squareCount - mineCount) {
       const end = new Date();
       const success = !hitMine;
-      setGameState(success ? 'win' : 'lose');
-      setEndTime(end);
-
-      // Calculate game statistics
-      const totalTime = (end - startTime) / 1000;
-      const moveTypes = moveHistory.reduce((acc, move) => {
-        acc[move.moveType] = (acc[move.moveType] || 0) + 1;
-        return acc;
-      }, {});
-
-      const gameStats = {
-        totalMoves: moveHistory.length,
-        blindGuesses: moveTypes.blind_guess || 0,
-        adjacentToNumber: moveTypes.adjacent_to_number || 0,
-        adjacentToEmpty: moveTypes.adjacent_to_empty || 0,
-        safeStarts: moveTypes.safe_start || 0,
-        averageGuessRisk: moveHistory.length > 0 
-          ? ((moveHistory.reduce((sum, move) => sum + (move.probability || 0), 0) / moveHistory.length) * 100).toFixed(1)
-          : '0',
-        averageTimePerMove: moveHistory.length > 0 
-          ? moveHistory.reduce((sum, move) => sum + move.time, 0) / moveHistory.length 
-          : 0,
-        totalTime,
-        success
-      };
-
-      api.postSolve({
-        username: cookies.username,
-        puzzleId: puzzleId,
-        time: totalTime,
-        success,
-        moves: moveHistory,
-        jwt: cookies.jwt
-      }, cookies.jwt);
-
-      onSolveComplete({
-        success,
-        time: totalTime,
-        stats: gameStats
-      });
-
-      if (hitMine) return;
+      handleGameOver(success);
     }
   }
+
+  const handleGameOver = (success) => {
+    setGameState(success ? 'win' : 'lose');
+    setEndTime(Date.now());
+    const stats = getGameStats();
+    onSolveComplete({
+      success,
+      time: ((Date.now() - startTime) / 1000).toFixed(2),
+      stats
+    });
+  };
 
   useEffect(() => {
     manageGameState()
@@ -240,22 +215,40 @@ const Board = ({ layout, puzzleId, onSolveComplete, mines }) => {
   }
 
   function handleChording(row, col) {
-    const mineCount = surroundingMines(row, col, layout);
     const flagCount = countSurroundingFlags(row, col);
+    const mineCount = surroundingMines(row, col, layout);
     
-    // Only chord if the number of flags matches the number on the cell
-    if (mineCount === flagCount) {
-      // Reveal all non-flagged surrounding cells
-      for (let i = row-1; i < row+2; i++) {
-        for (let j = col-1; j < col+2; j++) {
-          if (i < 0 || j < 0 || i >= layout.length || j >= layout[0].length) {
-            continue;
-          }
-          if (!flaggedCells.includes(`${i}-${j}`)) {
-            revealChunk(i, j);
+    if (flagCount === mineCount) {
+      // Record probabilities for all unrevealed neighbors being revealed by chord
+      const unrevealedNeighbors = [];
+      for (let r = row - 1; r <= row + 1; r++) {
+        for (let c = col - 1; c <= col + 1; c++) {
+          if (r === row && c === col) continue;
+          if (r < 0 || c < 0 || r >= layout.length || c >= layout[0].length) continue;
+          
+          const key = `${r}-${c}`;
+          if (!revealedCells.includes(key) && !flaggedCells.includes(key)) {
+            unrevealedNeighbors.push([r, c]);
           }
         }
       }
+      
+      // Record each unrevealed neighbor as a move
+      unrevealedNeighbors.forEach(([r, c]) => {
+        const probability = recordMove(r, c);
+        const moveTime = new Date() - moveStartTime;
+        setMoveHistory(prev => [...prev, {
+          row: r,
+          col: c,
+          type: 'reveal',
+          moveType: getMoveType(r, c),
+          probability,
+          time: moveTime / 1000
+        }]);
+      });
+      
+      // Reveal all non-flagged neighbors
+      unrevealedNeighbors.forEach(([r, c]) => revealChunk(r, c));
     }
   }
 
@@ -479,25 +472,47 @@ const Board = ({ layout, puzzleId, onSolveComplete, mines }) => {
   };
 
   const getGameStats = () => {
-    // Calculate average probability of guesses
-    const averageProbability = moveStats.length > 0 
-      ? moveStats.reduce((sum, move) => sum + move.probability, 0) / moveStats.length
-      : 0;
+    // Filter out moves with undefined probability and convert to numbers
+    const moves = moveStats
+      .filter(move => move.probability !== undefined)
+      .map(move => ({ ...move, probability: Number(move.probability) }));
+    
+    console.log('All moves:', moves);
+    
+    // Count moves with probability > 0
+    const riskyMoves = moves.filter(move => move.probability > 0);
+    const safeMoves = moves.filter(move => move.probability === 0);
+    
+    console.log('Risky moves:', riskyMoves);
+    console.log('Safe moves:', safeMoves);
+    
+    // Calculate averages
+    const averageRiskOfRiskyMoves = riskyMoves.length > 0
+      ? (riskyMoves.reduce((sum, move) => sum + move.probability, 0) / riskyMoves.length * 100).toFixed(1)
+      : '0';
+      
+    const overallAverageRisk = moves.length > 0
+      ? (moves.reduce((sum, move) => sum + move.probability, 0) / moves.length * 100).toFixed(1)
+      : '0';
 
-    // Count truly random guesses (no adjacent numbers)
-    const blindGuesses = moveHistory.filter(move => move.moveType === 'blind_guess').length;
+    console.log('Stats calculated:', {
+      totalMoves: moves.length,
+      safeMoves: safeMoves.length,
+      riskyMoves: riskyMoves.length,
+      averageRiskOfRiskyMoves,
+      overallAverageRisk
+    });
 
     return {
-      totalMoves: moveHistory.length,
-      blindGuesses,
-      adjacentToNumber: moveHistory.filter(move => move.moveType === 'adjacent_to_number').length,
-      adjacentToEmpty: moveHistory.filter(move => move.moveType === 'adjacent_to_empty').length,
-      safeStarts: moveHistory.filter(move => move.moveType === 'safe_start').length,
-      averageGuessRisk: (averageProbability * 100).toFixed(1),
-      totalTime: (endTime - startTime) / 1000,
+      totalMoves: moves.length || 0,  // Ensure we never return undefined
+      safeMoves: safeMoves.length || 0,
+      riskyMoves: riskyMoves.length || 0,
+      averageRiskOfRiskyMoves,
+      overallAverageRisk,
       averageTimePerMove: moveHistory.length > 0 
         ? moveHistory.reduce((sum, move) => sum + move.time, 0) / moveHistory.length 
         : 0,
+      totalTime: (endTime - startTime) / 1000,
       success: gameState === 'win'
     };
   };

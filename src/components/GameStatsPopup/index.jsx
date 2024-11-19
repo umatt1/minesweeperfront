@@ -1,8 +1,17 @@
 import React from 'react';
-import { Modal, Card, ProgressBar } from 'react-bootstrap';
+import { Modal, Card } from 'react-bootstrap';
 
 const GameStatsPopup = ({ show, onHide, stats }) => {
   if (!stats) return null;
+
+  // Calculate percentages safely
+  const safeMovePercent = stats.totalMoves > 0 
+    ? ((stats.safeMoves / stats.totalMoves) * 100).toFixed(1)
+    : '0.0';
+  
+  const riskyMovePercent = stats.totalMoves > 0
+    ? ((stats.riskyMoves / stats.totalMoves) * 100).toFixed(1)
+    : '0.0';
 
   return (
     <Modal show={show} onHide={onHide} centered>
@@ -15,21 +24,11 @@ const GameStatsPopup = ({ show, onHide, stats }) => {
           <Card.Body>
             <div className="mb-3">
               <h6>Risk Analysis</h6>
-              <p><strong>Average Guess Risk:</strong> {stats.averageGuessRisk}% chance of mine</p>
-              <ProgressBar>
-                <ProgressBar variant="success" now={stats.averageGuessRisk ? (100 - parseFloat(stats.averageGuessRisk)) : 100} 
-                           label={`Safe ${stats.averageGuessRisk ? (100 - parseFloat(stats.averageGuessRisk)).toFixed(1) : 100}%`} />
-                <ProgressBar variant="danger" now={stats.averageGuessRisk ? parseFloat(stats.averageGuessRisk) : 0} 
-                           label={`Risk ${stats.averageGuessRisk || 0}%`} />
-              </ProgressBar>
-            </div>
-            
-            <div className="mb-3">
               <p><strong>Total Moves:</strong> {stats.totalMoves}</p>
-              <p><strong>Blind Guesses:</strong> {stats.blindGuesses} ({((stats.blindGuesses / stats.totalMoves) * 100).toFixed(1)}%)</p>
-              <p><strong>Moves Near Numbers:</strong> {stats.adjacentToNumber} ({((stats.adjacentToNumber / stats.totalMoves) * 100).toFixed(1)}%)</p>
-              <p><strong>Moves Near Empty:</strong> {stats.adjacentToEmpty} ({((stats.adjacentToEmpty / stats.totalMoves) * 100).toFixed(1)}%)</p>
-              <p><strong>Safe Starts:</strong> {stats.safeStarts}</p>
+              <p><strong>Safe Moves (0% risk):</strong> {stats.safeMoves} ({safeMovePercent}%)</p>
+              <p><strong>Risky Moves (&gt;0% risk):</strong> {stats.riskyMoves} ({riskyMovePercent}%)</p>
+              <p><strong>Average Risk (risky moves only):</strong> {stats.averageRiskOfRiskyMoves}%</p>
+              <p><strong>Overall Average Risk:</strong> {stats.overallAverageRisk}%</p>
             </div>
           </Card.Body>
         </Card>
