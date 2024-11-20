@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Container, Row, Col, Alert } from 'react-bootstrap';
 import Cell from './Cell';
 import SolveApi from '../apis/SolveApi';
 import { useCookies } from 'react-cookie';
+import  ProbabilityEngine  from '../probabilityEngine/ProbabilityEngine';
 
 const api = new SolveApi();
 
@@ -36,15 +37,12 @@ const Board = ({ layout, puzzleId, onSolveComplete, mines }) => {
     if (!has2 && safeTiles.length > 0) {
       const randomIndex = Math.floor(Math.random() * safeTiles.length);
       setSafeStartSpot(safeTiles[randomIndex]);
-      console.log('Selected safe spot:', safeTiles[randomIndex]);
-    } else {
-      console.log('No safe spot needed:', has2 ? 'value 2 exists' : 'no safe tiles found');
-    }
+    } 
   }, [layout]);
 
   function getMoveType(row, col) {
     // First move or safe start spot is always safe
-    if (moveHistory.length === 0 || (safeStartSpot && safeStartSpot[0] === row && safeStartSpot[1] === col)) {
+    if (safeStartSpot && safeStartSpot[0] === row && safeStartSpot[1] === col) {
       return 'safe_start';
     }
 
@@ -298,119 +296,129 @@ const Board = ({ layout, puzzleId, onSolveComplete, mines }) => {
   }
 
   const calculateMineProbability = (row, col) => {
-    // If it's the first move, probability is based on total mines / total cells
-    if (moveHistory.length === 0) {
-      const totalCells = layout.length * layout[0].length;
-      const totalMines = layout.reduce((count, row) => 
-        count + row.filter(cell => cell === 1).length, 0);
-      return totalMines / totalCells;
+    // Pretty print the current board state
+    console.log('\n=== Calculating Probability for tile:', row, col, '===');
+    console.log('Current Board State:');
+    let boardString = '';
+    for (let i = 0; i < layout.length; i++) {
+      let rowString = '';
+      for (let j = 0; j < layout[i].length; j++) {
+        if (revealedCells.includes(`${i}-${j}`)) {
+          rowString += ` ${layout[i][j]} `;
+        } else if (flaggedCells.includes(`${i}-${j}`)) {
+          rowString += ' F ';
+        } else {
+          rowString += ' · ';
+        }
+      }
+      boardString += rowString + '\n';
+    }
+    console.log(boardString);
+
+    // If already revealed or flagged, return null
+    if (revealedCells.includes(`${row}-${col}`) || flaggedCells.includes(`${row}-${col}`)) {
+      console.log('Tile is already revealed or flagged');
+      return null;
     }
 
-    // Get all revealed neighbors and their numbers
-    const neighbors = [];
-    const constraints = [];
+    // Get all unrevealed neighbors and revealed neighbors
+    const unrevealedNeighbors = [];
+    const revealedNeighborCounts = [];
+    const directions = [
+      [-1, -1], [-1, 0], [-1, 1],
+      [0, -1],           [0, 1],
+      [1, -1],  [1, 0],  [1, 1]
+    ];
+
+    for (const [dx, dy] of directions) {
+      const newRow = row + dx;
+      const newCol = col + dy;
+      
+      if (newRow >= 0 && newRow < layout.length && newCol >= 0 && newCol < layout[0].length) {
+        if (revealedCells.includes(`${newRow}-${newCol}`)) {
+          // Store revealed neighbor's mine count
+          revealedNeighborCounts.push({
+            row: newRow,
+            col: newCol,
+            count: layout[newRow][newCol]
+          });
+        } else if (!flaggedCells.includes(`${newRow}-${newCol}`)) {
+          // Store unrevealed and unflagged neighbor
+          unrevealedNeighbors.push({
+            row: newRow,
+            col: newCol
+          });
+        }
+      }
+    }
+
+    console.log('Revealed neighbors with counts:', revealedNeighborCounts);
+    console.log('Unrevealed neighbors:', unrevealedNeighbors);
+
+    // If no revealed neighbors with numbers, use basic probability
+    if (revealedNeighborCounts.length === 0) {
+      const totalUnrevealed = layout.length * layout[0].length - revealedCells.length - flaggedCells.length;
+      const remainingMines = mines - flaggedCells.length;
+      console.log('No revealed neighbors, using basic probability:');
+      console.log(`Remaining mines: ${remainingMines}, Total unrevealed: ${totalUnrevealed}`);
+      return remainingMines / totalUnrevealed;
+    }
+
+    // Count valid configurations where this cell has a mine
+    let validConfigsWithMine = 0;
+    let totalValidConfigs = 0;
+
+    // Generate all possible mine configurations for unrevealed neighbors
+    const maxConfigs = Math.min(1 << unrevealedNeighbors.length, 1000); // Limit to prevent excessive computation
+    console.log(`Testing ${maxConfigs} possible configurations...`);
     
-    for (let dr = -1; dr <= 1; dr++) {
-      for (let dc = -1; dc <= 1; dc++) {
-        if (dr === 0 && dc === 0) continue;
-        
-        const newRow = row + dr;
-        const newCol = col + dc;
-        
-        if (newRow < 0 || newCol < 0 || 
-            newRow >= layout.length || newCol >= layout[0].length) continue;
-        
-        neighbors.push([newRow, newCol]);
-        
-        // If this neighbor is revealed and has a number, it creates a constraint
-        const cellKey = `${newRow}-${newCol}`;
-        if (revealedCells.includes(cellKey)) {
-          const number = surroundingMines(newRow, newCol, layout);
-          // Only add constraints from numbered cells
-          if (number > 0) {
-            // Get all unrevealed cells around this number
-            const unrevealedAround = [];
-            const flaggedAround = [];
-            
-            for (let r = newRow-1; r <= newRow+1; r++) {
-              for (let c = newCol-1; c <= newCol+1; c++) {
-                if (r === newRow && c === newCol) continue;
-                if (r < 0 || c < 0 || r >= layout.length || c >= layout[0].length) continue;
-                
-                const key = `${r}-${c}`;
-                if (!revealedCells.includes(key)) {
-                  if (flaggedCells.includes(key)) {
-                    flaggedAround.push([r, c]);
-                  } else {
-                    unrevealedAround.push([r, c]);
-                  }
-                }
-              }
+    for (let config = 0; config < maxConfigs; config++) {
+      const mineLocations = new Set();
+      
+      // Convert binary number to mine locations
+      for (let i = 0; i < unrevealedNeighbors.length; i++) {
+        if ((config & (1 << i)) !== 0) {
+          const neighbor = unrevealedNeighbors[i];
+          mineLocations.add(`${neighbor.row}-${neighbor.col}`);
+        }
+      }
+
+      // Check if this configuration is valid
+      let isValid = true;
+      for (const revealed of revealedNeighborCounts) {
+        let mineCount = 0;
+        // Count mines around this revealed cell
+        for (const [dx, dy] of directions) {
+          const checkRow = revealed.row + dx;
+          const checkCol = revealed.col + dy;
+          if (checkRow >= 0 && checkRow < layout.length && checkCol >= 0 && checkCol < layout[0].length) {
+            const key = `${checkRow}-${checkCol}`;
+            if (mineLocations.has(key) || flaggedCells.includes(key)) {
+              mineCount++;
             }
-            
-            if (unrevealedAround.length > 0) {
-              constraints.push({
-                position: [newRow, newCol],
-                number: number,
-                unrevealed: unrevealedAround,
-                flagged: flaggedAround.length,
-                remainingMines: number - flaggedAround.length
-              });
-            }
-          } else if (number === 0) {
-            // If we're next to a revealed 0, this cell must be safe
-            return 0;
           }
         }
+        if (mineCount !== revealed.count) {
+          isValid = false;
+          break;
+        }
       }
-    }
 
-    // If we have no constraints, calculate probability based on remaining mines and cells
-    if (constraints.length === 0) {
-      const totalMines = layout.reduce((count, row) => 
-        count + row.filter(cell => cell === 1).length, 0);
-      const remainingMines = totalMines - flaggedCells.length;
-      const unrevealedCount = layout.length * layout[0].length - 
-                             revealedCells.length - flaggedCells.length;
-      return remainingMines / unrevealedCount;
-    }
-
-    // For each constraint, check if we can definitively know this cell's state
-    for (const constraint of constraints) {
-      // If this cell is part of the constraint's unrevealed cells
-      const isPartOfConstraint = constraint.unrevealed.some(([r, c]) => r === row && c === col);
-      if (isPartOfConstraint) {
-        // If the number of remaining mines equals the number of unrevealed cells,
-        // all unrevealed cells must be mines
-        if (constraint.remainingMines === constraint.unrevealed.length) {
-          return 1;
-        }
-        
-        // If all mines are found (remainingMines = 0), cell must be safe
-        if (constraint.remainingMines === 0) {
-          return 0;
-        }
-
-        // If we have exactly the number of mines needed in other unrevealed cells
-        // around this number (excluding this cell), then this cell must be safe
-        const otherUnrevealed = constraint.unrevealed.filter(([r, c]) => r !== row || c !== col);
-        if (otherUnrevealed.length === constraint.remainingMines) {
-          return 0;
+      if (isValid) {
+        totalValidConfigs++;
+        if (mineLocations.has(`${row}-${col}`)) {
+          validConfigsWithMine++;
         }
       }
     }
 
-    // If we can't definitively determine safety, use the most conservative estimate
-    let maxProbability = 0;
-    for (const constraint of constraints) {
-      const isPartOfConstraint = constraint.unrevealed.some(([r, c]) => r === row && c === col);
-      if (isPartOfConstraint) {
-        const probability = constraint.remainingMines / constraint.unrevealed.length;
-        maxProbability = Math.max(maxProbability, probability);
-      }
-    }
-
-    return maxProbability;
+    const probability = totalValidConfigs === 0 ? 0 : validConfigsWithMine / totalValidConfigs;
+    console.log(`Valid configurations: ${totalValidConfigs}`);
+    console.log(`Valid configurations with mine: ${validConfigsWithMine}`);
+    console.log(`Final probability: ${probability}`);
+    console.log('=== End Calculation ===\n');
+    
+    return probability;
   };
 
   const renderCell = (value, row, col, layout, clickable=true) => {
