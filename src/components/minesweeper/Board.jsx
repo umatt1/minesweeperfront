@@ -3,7 +3,7 @@ import { Container, Row, Col, Alert } from 'react-bootstrap';
 import Cell from './Cell';
 import SolveApi from '../apis/SolveApi';
 import { useCookies } from 'react-cookie';
-import  ProbabilityEngine  from '../probabilityEngine/ProbabilityEngine';
+import { generateProbability } from '../probabilityEngine/ProbabilityEngine';
 
 const api = new SolveApi();
 
@@ -38,6 +38,13 @@ const Board = ({ layout, puzzleId, onSolveComplete, mines }) => {
       const randomIndex = Math.floor(Math.random() * safeTiles.length);
       setSafeStartSpot(safeTiles[randomIndex]);
     } 
+  }, [layout]);
+
+  useEffect(() => {
+    if (layout && layout.length > 0) {
+      // Assuming layout is a 2D array representing the mine grid
+      generateProbability(false);
+    }
   }, [layout]);
 
   function getMoveType(row, col) {
@@ -369,24 +376,34 @@ const Board = ({ layout, puzzleId, onSolveComplete, mines }) => {
     let totalValidConfigs = 0;
 
     // Generate all possible mine configurations for unrevealed neighbors
-    const maxConfigs = Math.min(1 << unrevealedNeighbors.length, 1000); // Limit to prevent excessive computation
+    const maxConfigs = Math.min(1 << (unrevealedNeighbors.length + 1), 1000); // +1 for target tile
     console.log(`Testing ${maxConfigs} possible configurations...`);
     
     for (let config = 0; config < maxConfigs; config++) {
       const mineLocations = new Set();
       
-      // Convert binary number to mine locations
-      for (let i = 0; i < unrevealedNeighbors.length; i++) {
+      // Convert binary number to mine locations, including target tile
+      for (let i = 0; i <= unrevealedNeighbors.length; i++) {
         if ((config & (1 << i)) !== 0) {
-          const neighbor = unrevealedNeighbors[i];
-          mineLocations.add(`${neighbor.row}-${neighbor.col}`);
+          if (i === unrevealedNeighbors.length) {
+            // Last bit represents target tile
+            mineLocations.add(`${row}-${col}`);
+          } else {
+            const neighbor = unrevealedNeighbors[i];
+            mineLocations.add(`${neighbor.row}-${neighbor.col}`);
+          }
         }
       }
+
+      console.log(`\nTesting configuration ${config}:`);
+      console.log('Mine locations:', Array.from(mineLocations));
 
       // Check if this configuration is valid
       let isValid = true;
       for (const revealed of revealedNeighborCounts) {
         let mineCount = 0;
+        console.log(`Checking revealed tile at ${revealed.row},${revealed.col} (count: ${revealed.count})`);
+        
         // Count mines around this revealed cell
         for (const [dx, dy] of directions) {
           const checkRow = revealed.row + dx;
@@ -398,13 +415,17 @@ const Board = ({ layout, puzzleId, onSolveComplete, mines }) => {
             }
           }
         }
+        console.log(`Found ${mineCount} mines around revealed tile ${revealed.row},${revealed.col}`);
+        
         if (mineCount !== revealed.count) {
+          console.log(`Invalid configuration: Expected ${revealed.count} mines, found ${mineCount}`);
           isValid = false;
           break;
         }
       }
 
       if (isValid) {
+        console.log('Valid configuration found!');
         totalValidConfigs++;
         if (mineLocations.has(`${row}-${col}`)) {
           validConfigsWithMine++;
@@ -413,6 +434,7 @@ const Board = ({ layout, puzzleId, onSolveComplete, mines }) => {
     }
 
     const probability = totalValidConfigs === 0 ? 0 : validConfigsWithMine / totalValidConfigs;
+    console.log(`\nFinal Results:`);
     console.log(`Valid configurations: ${totalValidConfigs}`);
     console.log(`Valid configurations with mine: ${validConfigsWithMine}`);
     console.log(`Final probability: ${probability}`);
